@@ -1,0 +1,340 @@
+package com.tienda.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.tienda.entity.Categoria;
+import com.tienda.entity.DetallePedido;
+import com.tienda.entity.Producto;
+import com.tienda.entity.Usuario;
+import com.tienda.service.CategoriaService;
+import com.tienda.service.DetallePedidoService;
+import com.tienda.service.ProductoService;
+import com.tienda.service.UsuarioService;
+
+import jakarta.servlet.http.HttpSession;
+
+@Controller
+@RequestMapping("/empleado")
+public class EmpleadoController {
+   
+	@Autowired
+	private UsuarioService usuarioService;
+	
+	@Autowired
+	private ProductoService productoService;
+	
+	@Autowired
+	private CategoriaService categoriaService;
+	
+	@Autowired
+	private DetallePedidoService detallePedidoService;
+	
+		//=========================== USUARIOS ===================================//
+	
+		// Listar todas las vistas 
+	@GetMapping("/inicio")
+		public String dashboard(@RequestParam(value = "seccion", defaultValue = "usuarios") String seccion,
+	                        // usuarios
+	                        @RequestParam(value = "filtro", required = false) String filtro,
+	                        @RequestParam(value = "page", defaultValue = "1") int pagina,
+	                        // productos
+	                        @RequestParam(value = "filtroProducto", required = false) String filtroProducto,
+	                        @RequestParam(value = "pageProducto", defaultValue = "1") int paginaProducto,
+	                        // detalle pedido
+	                        @RequestParam(value = "filtroDetallePedido", required = false) String filtroDetallePedido,
+	                        @RequestParam(value = "pageDetallePedido", defaultValue = "1") int paginaDetallePedido,
+	                        @RequestParam(value = "size", defaultValue = "8") int tamanio,
+	                        Model model, HttpSession session) {
+
+	    Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
+	    if (logueado != null) {
+	        model.addAttribute("idActual", logueado.getIdUser());
+	    }
+
+	    model.addAttribute("seccionActiva", seccion);
+
+	    // Normalizar filtros a minúsculas
+	    if (filtro != null) filtro = filtro.toLowerCase();
+	    if (filtroProducto != null) filtroProducto = filtroProducto.toLowerCase();
+	    if (filtroDetallePedido != null) filtroDetallePedido = filtroDetallePedido.toLowerCase();
+
+	    if (seccion.equals("usuarios")) {
+	    	Page<Usuario> usuariosPage = (filtro == null || filtro.isBlank())
+	    		    ? usuarioService.listarUsuariosFiltrados(pagina - 1, tamanio)
+	    		    : usuarioService.buscarUsuariosFiltrados(filtro, pagina - 1, tamanio);
+
+	    		model.addAttribute("usuarios", usuariosPage.getContent());
+	    		model.addAttribute("paginaActual", pagina);
+	    		model.addAttribute("totalPaginas", usuariosPage.getTotalPages());
+	    		model.addAttribute("totalUsuarios", usuariosPage.getTotalElements());
+
+	    }
+
+	    if (seccion.equals("productos")) {
+	        Page<Producto> productosPage = (filtroProducto == null || filtroProducto.isBlank())
+	                ? productoService.listarPaginado(paginaProducto - 1, tamanio)
+	                : productoService.buscarTodosPorFiltro(filtroProducto, paginaProducto - 1, tamanio);
+
+	        model.addAttribute("productos", productosPage.getContent());
+	        model.addAttribute("filtroProducto", filtroProducto);
+	        model.addAttribute("paginaActualProducto", paginaProducto);
+	        model.addAttribute("totalPaginasProducto", productosPage.getTotalPages());
+	        model.addAttribute("totalProductos", productosPage.getTotalElements());
+	    }
+
+	    if (seccion.equals("detallePedidos")) {
+	        Page<DetallePedido> detallePedidosPage = (filtroDetallePedido == null || filtroDetallePedido.isBlank())
+	                ? detallePedidoService.buscarTodosPorFiltro("", paginaDetallePedido - 1, tamanio)
+	                : detallePedidoService.buscarTodosPorFiltro(filtroDetallePedido, paginaDetallePedido - 1, tamanio);
+
+	        model.addAttribute("detallePedidos", detallePedidosPage.getContent());
+	        model.addAttribute("filtroDetallePedido", filtroDetallePedido);
+	        model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
+	        model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
+	        model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
+	    }
+
+	    return "/empleado/inicio";
+		}
+	
+	    // Conteo Usuarios Por Filtro
+	    @GetMapping("/contarUsuarios")
+	    @ResponseBody
+	    public long contarUsuariosPorFiltro(@RequestParam("filtro") String filtro) {
+	    	return usuarioService.contarPorNombreApellidoORRol(filtro);
+	    }
+	    
+	    // Eliminar Usuario
+	    @PostMapping("/eliminarUsuario")
+	    public String eliminarUsuario(@RequestParam("id") int id, RedirectAttributes redirect) {
+	    	Usuario usuario = usuarioService.buscarById(id);
+	    	
+	    	if(usuario != null && "Aprobado".equalsIgnoreCase(usuario.getEstado())) {
+	    	   usuario.setEstado("Rechazado");
+	    	   usuarioService.eliminarUsuarioConPedidos(id);
+	    	   
+	    	   String nombreCompleto = usuario.getNombres() + " " + usuario.getApellidos();
+	    	   redirect.addFlashAttribute("eliminar", "La Cuenta de "+nombreCompleto+" fue Eliminada.");
+	    	}
+	    	return "redirect:/empleado/inicio";
+	    }
+		
+	    //=========================== PRODUCTOS ===================================//
+	    
+	    // Mostrar formulario de registro de producto
+	    @GetMapping("/formularioRegistrarProducto")
+		public String mostrarFormularioRegistroProducto(Model model) {
+	    	model.addAttribute("producto", new Producto());
+	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	return "empleado/formularioRegistrarProducto";
+		}
+
+		// Guardar nuevo producto
+	    @PostMapping("/registrarProducto")
+	    public String guardarProducto(@ModelAttribute("producto") Producto producto,
+	                                  RedirectAttributes redirect, Model model) {
+
+	        // Validar nombre repetido
+	        Producto productoPorNombre = productoService.buscarPorNombre(producto.getNomProd());
+	        if (productoPorNombre != null) {
+	            model.addAttribute("error", "El nombre del producto ya está registrado.");
+	            model.addAttribute("categorias", categoriaService.listarCategorias());
+	            return "empleado/formularioRegistrarProducto";
+	        }
+	        
+	        // Guardar producto
+	        producto.setActivo(producto.getStock() > 0);
+	        productoService.guardarProducto(producto);
+
+	        redirect.addFlashAttribute("mensaje", "Producto registrado exitosamente.");
+	        return "redirect:/empleado/inicio?seccion=productos";
+	    }
+
+		
+		//Conteo Producto Por filtro
+	    @GetMapping("/contarProductos")
+	    @ResponseBody
+	    public long contarProductosPorFiltro(@RequestParam("filtro") String filtro) {
+	    	return productoService.contadorProducto(filtro);
+	    }
+		
+		// Mostrar formulario para actualizar un producto
+		@GetMapping("/formularioActualizarProducto/{id}")
+		public String mostrarFormularioActualizarProducto(@PathVariable("id") Integer idProd,
+	                                                  Model model, RedirectAttributes redirect) {
+	    	Producto producto = productoService.buscarPorId(idProd);
+	    	if (producto == null) {
+	        	redirect.addFlashAttribute("error", "Producto no encontrado.");
+	        	return "redirect:/empleado/inicio?seccion=productos";
+	    	}
+	    	producto.setActivo(producto.getStock() > 0);
+	    	model.addAttribute("producto", producto);
+	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	return "empleado/formularioActualizarProducto";
+		}
+
+		// Actualizar producto
+		@PostMapping("/actualizarProducto/{id}")
+		public String actualizarProducto(@ModelAttribute("producto") Producto productoFormulario,
+		                                 @PathVariable("id") int idProducto,
+		                                 RedirectAttributes redirect) {
+
+		    Producto productoExistente = productoService.buscarPorId(idProducto);
+
+		    if (productoExistente != null) {
+		        // Guardar nombre anterior
+		        String nombreAnterior = productoExistente.getNomProd();
+		        String nombreNuevo = productoFormulario.getNomProd();
+
+		        // Actualizar campos
+		        productoExistente.setNomProd(nombreNuevo);
+		        productoExistente.setDetalles(productoFormulario.getDetalles());
+		        productoExistente.setPrecioUnit(productoFormulario.getPrecioUnit());
+		        productoExistente.setStock(productoFormulario.getStock());
+		        productoExistente.setCategoria(productoFormulario.getCategoria());
+
+		        // Activar si tiene stock
+		        boolean nuevoEstado = productoExistente.getStock() > 0;
+		        productoExistente.setActivo(nuevoEstado);
+
+		        // Guardar cambios
+		        productoService.actualizarProducto(productoExistente);
+
+		        // Mensaje informativo
+		        String mensaje;
+		        if (!nombreAnterior.equals(nombreNuevo)) {
+		            mensaje = "Producto actualizado: se cambió el nombre de '" + nombreAnterior + "' a '" + nombreNuevo + "'.";
+		        } else {
+		            mensaje = "Producto '" + nombreNuevo + "' actualizado correctamente.";
+		        }
+
+		        if (nuevoEstado) {
+		            mensaje += " El producto está activo.";
+		        } else {
+		            mensaje += " El producto está inactivo por falta de stock.";
+		        }
+
+		        redirect.addFlashAttribute("mensaje", mensaje);
+		    } else {
+		        redirect.addFlashAttribute("error", "Producto no encontrado.");
+		    }
+
+		    return "redirect:/empleado/inicio?seccion=productos";
+		}
+
+		// Activar producto
+		@PostMapping("/activarProducto/{id}")
+		public String activarProducto(@PathVariable("id") int idProducto,
+	                              	  RedirectAttributes redirect) {
+			
+			Producto producto = productoService.buscarPorId(idProducto);
+			
+	    	try {
+	        	productoService.activar(idProducto);
+	        	
+	        	String nombreProducto = producto.getNomProd();
+	        	redirect.addFlashAttribute("mensaje", "Producto '" + nombreProducto + "' activado correctamente.");
+	    	} catch (Exception e) {
+	        	redirect.addFlashAttribute("error", "Error al activar el producto.");
+	    	}
+	    	return "redirect:/empleado/inicio?seccion=productos";
+		}
+
+		// Desactivar producto
+		@PostMapping("/desactivarProducto/{id}")
+		public String desactivarProducto(@PathVariable("id") int idProducto,
+		                                 RedirectAttributes redirect) {
+			
+		    Producto producto = productoService.buscarPorId(idProducto);
+		    
+		    try {
+		        productoService.desactivar(idProducto);
+		        
+		        String nombreProducto = producto.getNomProd();
+
+		        redirect.addFlashAttribute("mensaje", "Producto '" + nombreProducto + "' desactivado correctamente.");
+		    } catch (Exception e) {
+		        redirect.addFlashAttribute("error", "Error al desactivar el producto.");
+		    }
+		    
+		    return "redirect:/empleado/inicio?seccion=productos";
+		}
+		
+	    //=========================== CATEGORIAS ===================================//
+	    
+	    // Listar
+	    @GetMapping("/listarCategorias")
+	    public String listarCategorias(Model model) {
+	        model.addAttribute("categorias", categoriaService.listarCategorias());
+	        return "empleado/listarCategorias";
+	    }
+
+	    // formulario de registro sin ID
+	    @GetMapping("/formularioRegistrarCategoria")
+	    public String guardarCategoria(@ModelAttribute("categoria") Categoria categoria,
+                RedirectAttributes redirect, Model model) {
+
+	    	Categoria existente = categoriaService.buscarPorNombre(categoria.getNomCate());
+
+	    	if (existente != null) {
+	    		model.addAttribute("error", "Ya existe una categoría con ese nombre.");
+	    		model.addAttribute("categoria", categoria);
+	    		return "empleado/formularioRegistrarCategoria";
+	    	}
+
+	    		categoriaService.guardarCategoria(categoria);
+	    		redirect.addFlashAttribute("mensaje", "Categoría registrada exitosamente.");
+	    		return "redirect:/empleado/inicio?seccion=categorias";
+	    	}
+
+		// formulario para editar
+		@GetMapping("/formularioActualizarCategoria/{id}")
+		public String actualizarCategoria(@ModelAttribute("categoria") Categoria categoriaFormulario,
+                @PathVariable("id") int id,
+                RedirectAttributes redirect, Model model) {
+
+Categoria existente = categoriaService.buscarPorNombre(categoriaFormulario.getNomCate());
+
+if (existente != null && existente.getIdCate() != id) {
+model.addAttribute("error", "Ya existe otra categoría con ese nombre.");
+model.addAttribute("categoria", categoriaFormulario);
+model.addAttribute("origen", "categorias");
+return "empleado/formularioRegistrarCategoria";
+}
+
+Categoria categoriaOriginal = categoriaService.buscarPorId(id);
+if (categoriaOriginal != null) {
+categoriaOriginal.setNomCate(categoriaFormulario.getNomCate());
+categoriaService.guardarCategoria(categoriaOriginal);
+redirect.addFlashAttribute("mensaje", "Categoría actualizada correctamente.");
+} else {
+redirect.addFlashAttribute("error", "Categoría no encontrada.");
+}
+
+return "redirect:/empleado/inicio?seccion=categorias";
+}
+
+		// al guardar: vuelve a /admin/listarCategorias
+		@PostMapping("/registrarCategoria")
+		public String guardarCategoria(@ModelAttribute("categoria") Categoria categoria,
+	                               RedirectAttributes redirect) {
+	    categoriaService.guardarCategoria(categoria);
+	    redirect.addFlashAttribute("mensaje", "Categoría registrada/actualizada exitosamente");
+	    return "redirect:/empleado/listarCategorias";
+		}
+		
+}
+
+	
+

@@ -1,0 +1,39 @@
+package com.tienda.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.tienda.service.CategoriaService;
+import com.tienda.service.DetallePedidoService;
+import com.tienda.service.ProductoService;
+import com.tienda.service.UsuarioService;
+
+@Controller
+@RequestMapping("/empleado")
+public class EmpleadoController {
+   
+	@Autowired
+	private UsuarioService usuarioService;
+	
+	@Autowired
+	private ProductoService productoService;
+	
+	@Autowired
+	private CategoriaService categoriaService;
+	
+	@Autowired
+	private DetallePedidoService detallePedidoService;
+	
+	@GetMapping("/inicio")
+    public String inicio() {
+        return "empleado/inicio";
+    }
+	
+	
+	
+}
+
+	
+

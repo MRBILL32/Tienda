@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Carrito de Compras</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<h1>Carrito de Compras</h1>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Precio Unitario</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="detalle : ${carrito}">
+            <td th:text="${detalle.producto.nomProd}">Nombre producto</td>
+            <td th:text="${detalle.precioUnit}">0.00</td>
+            <td th:text="${detalle.cantidad}">1</td>
+            <td th:text="${detalle.subtotal}">0.00</td>
+            <td>
+                <form method="post" th:action="@{/cliente/eliminarDelCarrito}">
+                    <input type="hidden" name="idProd" th:value="${detalle.producto.idProd}">
+                    <button type="submit">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Total del carrito -->
+<h3>Total: S/. <span th:text="${total}">0.00</span></h3>
+
+<br>
+<a th:href="@{/cliente/inicio}">Seguir comprando</a>
+<a th:href="@{/cliente/procesarCompra}">Finalizar compra</a>
+
+<form method="post" th:action="@{/cliente/vaciarCarrito}">
+    <button type="submit">Vaciar Carrito</button>
+</form>
+
+</body>
+</html>
+
+

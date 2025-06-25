@@ -1,0 +1,71 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fff9f0;
+}
+
+h2 {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.btn {
+    border-radius: 20px;
+}
+
+.seccion {
+    display: none;
+}
+
+.seccion.active {
+    display: block;
+}
+
+.table th {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.pagination .page-item .page-link {
+    border-radius: 10px;
+    margin: 0 4px;
+    color: #007bff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+}
+
+#mensajeNoResultados {
+    font-weight: bold;
+}
+	
+	.pagination {
+	    display: flex;
+	    justify-content: center;
+	    margin-top: 10px;
+	    flex-wrap: wrap;
+	}
+
+	.pagination button {
+	    margin: 2px;
+	    padding: 5px 10px;
+	    border: 1px solid #ccc;
+	    background-color: #f8f9fa;
+	    cursor: pointer;
+	}
+
+	.pagination button.active {
+	    background-color: #007bff;
+	    color: white;
+	}

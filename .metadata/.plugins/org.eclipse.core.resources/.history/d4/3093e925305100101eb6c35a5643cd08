@@ -1,0 +1,44 @@
+package com.tienda.serviceImpl;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import com.tienda.entity.DetallePedido;
+import com.tienda.entity.DetallePedidoId;
+import com.tienda.repository.DetallePedidoRepository;
+import com.tienda.service.DetallePedidoService;
+
+@Service
+public class DetallePedidoServiceImpl implements DetallePedidoService{
+
+	  private final DetallePedidoRepository detallePedidoRepository;
+
+	    public DetallePedidoServiceImpl(DetallePedidoRepository detallePedidoRepository) {
+	        this.detallePedidoRepository = detallePedidoRepository;
+	    }
+	
+	@Override
+	public DetallePedido guardar(DetallePedido detalle) {
+		return detallePedidoRepository.save(detalle);
+	}
+
+	@Override
+	public DetallePedido buscarPorId(DetallePedidoId id) {
+		return detallePedidoRepository.findById(id)
+					.orElseThrow(() -> new RuntimeException("Detalle no encontrado: " + id));
+	}
+
+	@Override
+	public Page<DetallePedido> buscarTodosPorFiltro(String filtro, Pageable pageable) {
+		return detallePedidoRepository.buscarTodosPorFiltro(filtro, pageable);
+	}
+
+	@Override
+	public void eliminar(DetallePedidoId id) {
+		detallePedidoRepository.deleteById(id);
+	}
+	
+	
+	
+}

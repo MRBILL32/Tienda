@@ -1,0 +1,19 @@
+package com.tienda.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/empleado")
+public class EmpleadoController {
+   
+	@GetMapping("/inicio")
+    public String inicio() {
+        return "empleado/inicio";
+    }
+	
+}
+
+	
+

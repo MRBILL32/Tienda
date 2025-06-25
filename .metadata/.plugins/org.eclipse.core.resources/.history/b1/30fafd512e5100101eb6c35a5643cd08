@@ -1,0 +1,56 @@
+package com.tienda.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.tienda.entity.DetallePedido;
+import com.tienda.entity.DetallePedidoId;
+import com.tienda.repository.DetallePedidoRepository;
+import com.tienda.service.DetallePedidoService;
+
+@Service
+public class DetallePedidoServiceImpl implements DetallePedidoService{
+
+	  private final DetallePedidoRepository detallePedidoRepository;
+
+	    public DetallePedidoServiceImpl(DetallePedidoRepository detallePedidoRepository) {
+	        this.detallePedidoRepository = detallePedidoRepository;
+	    }
+	
+	@Override
+	public DetallePedido guardar(DetallePedido detalle) {
+		return detallePedidoRepository.save(detalle);
+	}
+
+	@Override
+	public List<DetallePedido> listarTodos() {
+		return detallePedidoRepository.findAll();
+	}
+
+	@Override
+	public DetallePedido buscarPorId(DetallePedidoId id) {
+		return detallePedidoRepository.findById(id)
+					.orElseThrow(() -> new RuntimeException("Detalle no encontrado: " + id));
+	}
+
+	@Override
+	public List<DetallePedido> listarPorPedido(Integer idPedido) {
+		return detallePedidoRepository.listarPorPedido(idPedido);
+	}
+
+	@Override
+	public List<DetallePedido> listarPorProducto(Integer idProd) {
+		return detallePedidoRepository.listarPorProducto(idProd);
+	}
+
+	@Override
+	public void eliminar(DetallePedidoId id) {
+		detallePedidoRepository.deleteById(id);
+	}
+
+
+	
+	
+	
+}

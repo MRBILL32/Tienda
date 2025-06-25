@@ -1,0 +1,18 @@
+body {
+    background-color: #fff9f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+.card {
+    border-radius: 15px;
+}
+
+.card-header h4 {
+    margin-bottom: 0;
+}
+
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}

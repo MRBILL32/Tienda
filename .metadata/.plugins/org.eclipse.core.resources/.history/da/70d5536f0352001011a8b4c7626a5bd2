@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cliente - Tienda Kokiri</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+    <style>
+        .seccion { display: none; }
+        .seccion.active { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2 class="text-center">Bienvenido a la Tienda Kokiri</h2>
+
+    <!-- BOTONES DE SECCIÓN -->
+    <div class="text-center my-4">
+        <div class="d-inline-block p-3 rounded shadow-sm"
+             style="background-color: #f5faff; border: 1px solid #c8e1f0;">
+
+            <a th:href="@{/empleado/inicio(seccion='productos')}"
+               class="btn btn-outline-success mx-2"
+               th:classappend="${seccionActiva == 'productos'} ? ' active'">Productos</a>
+
+			<a th:href="@{/empleado/inicio(seccion='detallePedidos')}"
+			   class="btn btn-outline-warning mx-2"
+			   th:classappend="${seccionActiva == 'detallePedidos'} ? ' active'">Pedidos</a>
+			
+			<a href="/logout" class="btn btn-outline-danger mx-1">Cerrar Sesión</a>
+			   
+        </div>
+    </div>
+
+	<!-- PRODUCTOS -->
+	<div id="productos" class="seccion" th:classappend="${seccionActiva == 'productos'} ? ' active'">
+	    <h4>Productos Disponibles (Total: <span th:text="${totalProductos}"></span>)</h4>
+
+	    <!-- ALERTAS -->
+	    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+	        <span th:text="${mensaje}"></span>
+	    </div>
+	    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+	        <span th:text="${error}"></span>
+	    </div>
+
+	    <!-- BUSCADOR -->
+	    <form method="get" th:action="@{/empleado/inicio}">
+	        <input type="hidden" name="seccion" value="productos"/>
+	        <div class="input-group mb-3">
+	            <input type="text" name="filtroProducto" th:value="${filtroProducto}" class="form-control"
+	                   placeholder="Buscar por nombre, marca o categoría...">
+	            <button type="submit" class="btn btn-primary">Buscar</button>
+	        </div>
+	    </form>
+
+	    <div th:if="${productos != null and productos.size() == 0}" class="text-center text-danger mb-2">
+	        No se encontraron productos.
+	    </div>
+		<!-- BOTONES SUPERIORES -->
+		<div class="text-end mb-2">
+		    <a href="/cliente/formularioRegistrarProducto" class="btn btn-outline-primary">+ Nuevo Producto</a>
+		    <a href="/cliente/listarCategorias" class="btn btn-outline-secondary"> 📋 Revisar Categorías </a>
+		</div>
+
+		<!-- TABLA DE PRODUCTOS -->
+		<table class="table table-striped table-bordered text-center align-middle">
+		    <thead class="table-success">
+		        <tr>
+		            <th>Nombre</th>
+		            <th>Marca</th>
+		            <th>Precio Unitario(S/.)</th>
+		            <th>Stock</th>
+		            <th>Categoría</th>
+		            <th>Disponible</th>
+		            <th>Acciones</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr th:each="p : ${productos}">
+		            <td th:text="${p.nomProd}"></td>
+		            <td th:text="${p.marcaProd}"></td>
+		            <td th:text="${p.precioUnit}"></td>
+		            <td th:text="${p.stock}"></td>
+		            <td th:text="${p.categoria.nomCate}"></td>
+		            <td>
+		                <span th:text="${p.activo ? 'Sí' : 'No'}"
+		                      th:classappend="${p.activo} ? 'text-success' : 'text-danger'"></span>
+		            </td>
+		            <td>
+		                <a th:href="@{/cliente/formularioActualizarProducto/{id}(id=${p.idProd})}"
+		                   class="btn btn-sm btn-primary mb-1">seleccionar</a>
+		            </td>
+		        </tr>
+		    </tbody>
+		</table>
+
+	    <!-- PAGINACIÓN PRODUCTOS -->
+	    <nav th:if="${totalPaginasProducto > 1}">
+	        <ul class="pagination justify-content-center">
+	            <li class="page-item" th:classappend="${paginaActualProducto == 1} ? 'disabled'">
+	                <a class="page-link"
+	                   th:href="@{'/cliente/inicio'(seccion='productos', pageProducto=${paginaActualProducto - 1}, filtroProducto=${filtroProducto})}">Anterior</a>
+	            </li>
+	            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPaginasProducto)}"
+	                th:classappend="${i == paginaActualProducto} ? 'active'">
+	                <a class="page-link"
+	                   th:href="@{'/cliente/inicio'(seccion='productos', pageProducto=${i}, filtroProducto=${filtroProducto})}"
+	                   th:text="${i}">1</a>
+	            </li>
+	            <li class="page-item" th:classappend="${paginaActualProducto == totalPaginasProducto} ? 'disabled'">
+	                <a class="page-link"
+	                   th:href="@{'/cliente/inicio'(seccion='productos', pageProducto=${paginaActualProducto + 1}, filtroProducto=${filtroProducto})}">Siguiente</a>
+	            </li>
+	        </ul>
+	    </nav>
+	</div>
+
+	<!-- DETALLE PEDIDOS -->
+	<div id="detallePedidos" class="seccion" th:classappend="${seccionActiva == 'detallePedidos'} ? ' active'">
+	    <h4>Detalle de Pedidos (Total: <span th:text="${totalDetallePedido}"></span>)</h4>
+
+	    <!-- ALERTAS -->
+	    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+	        <span th:text="${mensaje}"></span>
+	    </div>
+	    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+	        <span th:text="${error}"></span>
+	    </div>
+
+	    <!-- BUSCADOR -->
+	    <form method="get" th:action="@{/empleado/inicio}">
+	        <input type="hidden" name="seccion" value="detallePedidos"/>
+	        <div class="input-group mb-3">
+	            <input type="text" name="filtroDetallePedido" th:value="${filtroDetallePedido}" class="form-control"
+	                   placeholder="Buscar por cliente, producto o pedido...">
+	            <button type="submit" class="btn btn-primary">Buscar</button>
+	        </div>
+	    </form>
+
+	    <div th:if="${detallePedidos != null and detallePedidos.size() == 0}" class="text-center text-danger mb-2">
+	        No se encontraron pedidos.
+	    </div>
+
+	    <!-- TABLA -->
+		<table class="table table-striped table-bordered text-center align-middle">
+		    <thead class="table-warning">
+		    <tr>
+		        <th>Cliente</th>
+		        <th>Producto Comprado</th>
+		        <th>Fecha</th>
+		        <th>Cantidad</th>
+		        <th>Precio(S/.)</th>
+		        <th>Subtotal(S/.)</th>
+		    </tr>
+		    </thead>
+		    <tbody>
+		    <tr th:each="d : ${detallePedidos}">
+		        <td th:text="${d.pedido.usuario.nombres + ' ' + d.pedido.usuario.apellidos}"></td>
+		        <td th:text="${d.producto.nomProd}"></td>
+		        <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
+		        <td th:text="${d.cantidad}"></td>
+		        <td th:text="${d.precioUnit}"></td>
+		        <td th:text="${d.cantidad * d.precioUnit}"></td>
+		    </tr>
+		    </tbody>
+		</table>
+
+	    <!-- PAGINACIÓN -->
+	    <nav th:if="${totalPaginasDetallePedido > 1}">
+	        <ul class="pagination justify-content-center">
+	            <li class="page-item" th:classappend="${paginaActualDetallePedido == 1} ? 'disabled'">
+	                <a class="page-link"
+	                   th:href="@{/empleado/inicio(seccion='detallePedidos', filtroDetallePedido=${filtroDetallePedido}, pageDetallePedido=${paginaActualDetallePedido - 1})}">Anterior</a>
+	            </li>
+	            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPaginasDetallePedido)}"
+	                th:classappend="${i == paginaActualDetallePedido} ? 'active'">
+	                <a class="page-link"
+	                   th:href="@{/empleado/inicio(seccion='detallePedidos', filtroDetallePedido=${filtroDetallePedido}, pageDetallePedido=${i})}"
+	                   th:text="${i}">1</a>
+	            </li>
+	            <li class="page-item" th:classappend="${paginaActualDetallePedido == totalPaginasDetallePedido} ? 'disabled'">
+	                <a class="page-link"
+	                   th:href="@{/empleado/inicio(seccion='detallePedidos', filtroDetallePedido=${filtroDetallePedido}, pageDetallePedido=${paginaActualDetallePedido + 1})}">Siguiente</a>
+	            </li>
+	        </ul>
+	    </nav>
+	</div>
+</body>
+</html>
+

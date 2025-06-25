@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Categorías</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Lista de Categorías</h2>
+
+    <a th:href="@{/admin/formularioRegistrarCategoria}" class="btn btn-success mb-3">+ Nueva Categoría</a>
+
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cat : ${listaCategorias}">
+            <td th:text="${cat.idCategoria}"></td>
+            <td th:text="${cat.nomCategoria}"></td>
+            <td th:text="${cat.descripcion}"></td>
+            <td>
+                <a th:href="@{'/admin/editarCategoria/' + ${cat.idCategoria}}" class="btn btn-warning btn-sm">Editar</a>
+                <a th:href="@{'/admin/eliminarCategoria/' + ${cat.idCategoria}}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('¿Estás seguro de eliminar esta categoría?')">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/admin/inicio?seccion=productos}" class="btn btn-secondary">Volver</a>
+</div>
+</body>
+</html>

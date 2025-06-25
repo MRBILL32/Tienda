@@ -1,0 +1,86 @@
+package com.tienda.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.tienda.entity.DetallePedido;
+import com.tienda.entity.Producto;
+import com.tienda.entity.Usuario;
+import com.tienda.service.CategoriaService;
+import com.tienda.service.DetallePedidoService;
+import com.tienda.service.ProductoService;
+
+import jakarta.servlet.http.HttpSession;
+
+@Controller
+@RequestMapping("/cliente")
+public class ClienteController {
+	
+	@Autowired
+	private ProductoService productoService;
+	
+	@Autowired
+	private CategoriaService categoriaService;
+	
+	@Autowired
+	private DetallePedidoService detallePedidoService;
+	
+	// Listar todas las vistas 
+	@GetMapping("/inicio")
+	public String dashboard(@RequestParam(value = "seccion", defaultValue = "productos") String seccion,
+	                        @RequestParam(value = "filtroProducto", required = false) String filtroProducto,
+	                        @RequestParam(value = "pageProducto", defaultValue = "1") int paginaProducto,
+	                        @RequestParam(value = "filtroDetallePedido", required = false) String filtroDetallePedido,
+	                        @RequestParam(value = "pageDetallePedido", defaultValue = "1") int paginaDetallePedido,
+	                        @RequestParam(value = "size", defaultValue = "8") int tamanio,
+	                        Model model, HttpSession session) {
+
+	    // Obtener el usuario desde la sesión
+	    Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+	    // Si no hay usuario en sesión, redirige al login
+	    if (usuario == null) {
+	        model.addAttribute("error", "Por favor, inicia sesión.");
+	        return "redirect:/";
+	    }
+
+	    int idUser = usuario.getIdUser();
+	    model.addAttribute("seccionActiva", seccion);
+
+	    // Productos
+	    if (seccion.equals("productos")) {
+	        Page<Producto> productosPage = (filtroProducto == null || filtroProducto.isBlank())
+	                ? productoService.buscarActivoPorFiltro("", paginaProducto - 1, tamanio, true)
+	                : productoService.buscarActivoPorFiltro(filtroProducto, paginaProducto - 1, tamanio, true);
+
+	        model.addAttribute("productos", productosPage.getContent());
+	        model.addAttribute("filtroProducto", filtroProducto);
+	        model.addAttribute("paginaActualProducto", paginaProducto);
+	        model.addAttribute("totalPaginasProducto", productosPage.getTotalPages());
+	        model.addAttribute("totalProductos", productosPage.getTotalElements());
+	    }
+
+	    // Detalle de pedidos (solo del usuario)
+	    if (seccion.equals("detallePedidos")) {
+	        Page<DetallePedido> detallePedidosPage = (filtroDetallePedido == null || filtroDetallePedido.isBlank())
+	                ? detallePedidoService.buscarPorFiltroYUsuario("", paginaDetallePedido - 1, tamanio, idUser)
+	                : detallePedidoService.buscarPorFiltroYUsuario(filtroDetallePedido, paginaDetallePedido - 1, tamanio, idUser);
+
+	        model.addAttribute("detallePedidos", detallePedidosPage.getContent());
+	        model.addAttribute("filtroDetallePedido", filtroDetallePedido);
+	        model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
+	        model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
+	        model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
+	    }
+
+	    return "cliente/inicio";
+	}
+
+
+
+}

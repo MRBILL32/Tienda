@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/global-style.css">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">🛒 Carrito de Compras</h1>
+
+    <div th:if="${carrito != null and #lists.isEmpty(carrito) == false}">
+        <table class="table table-bordered table-hover align-middle shadow-sm">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio Unitario</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="detalle : ${carrito}">
+                    <td th:text="${detalle.producto.nomProd}">Nombre producto</td>
+                    <td>S/. <span th:text="${detalle.precioUnit}">0.00</span></td>
+                    <td th:text="${detalle.cantidad}">1</td>
+                    <td>S/. <span th:text="${detalle.subtotal}">0.00</span></td>
+                    <td class="text-center">
+                        <form method="post" th:action="@{/cliente/eliminarDelCarrito}">
+                            <input type="hidden" name="idProd" th:value="${detalle.producto.idProd}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑 Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Total: S/. <span th:text="${total}">0.00</span></h4>
+            <form method="post" th:action="@{/cliente/vaciarCarrito}">
+                <button type="submit" class="btn btn-warning">🧹 Vaciar Carrito</button>
+            </form>
+        </div>
+
+        <!-- Acciones -->
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/cliente/inicio}" class="btn btn-secondary">⬅ Seguir Comprando</a>
+            <a th:href="@{/cliente/procesarCompra}" class="btn btn-success">✅ Finalizar Compra</a>
+        </div>
+    </div>
+
+    <div th:if="${carrito == null or #lists.isEmpty(carrito)}" class="alert alert-info text-center">
+        Tu carrito está vacío. <a th:href="@{/cliente/inicio}" class="alert-link">¡Explora productos!</a>
+    </div>
+</div>
+
+</body>
+</html>
