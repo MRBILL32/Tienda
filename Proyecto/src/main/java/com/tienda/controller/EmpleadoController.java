@@ -57,10 +57,11 @@ public class EmpleadoController {
 	                        @RequestParam(value = "size", defaultValue = "8") int tamanio,
 	                        Model model, HttpSession session) {
 
-	    Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
-	    if (logueado != null) {
-	        model.addAttribute("idActual", logueado.getIdUser());
-	    }
+		Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
+		if (logueado == null) {
+		    return "redirect:/";
+		}
+		model.addAttribute("idActual", logueado.getIdUser());
 
 	    model.addAttribute("seccionActiva", seccion);
 
@@ -70,14 +71,16 @@ public class EmpleadoController {
 	    if (filtroDetallePedido != null) filtroDetallePedido = filtroDetallePedido.toLowerCase();
 
 	    if (seccion.equals("usuarios")) {
+	    	int idActual = logueado.getIdUser();
 	    	Page<Usuario> usuariosPage = (filtro == null || filtro.isBlank())
-	    		    ? usuarioService.listarUsuariosFiltrados(pagina - 1, tamanio)
-	    		    : usuarioService.buscarUsuariosFiltrados(filtro, pagina - 1, tamanio);
+	    		    ? usuarioService.listarUsuariosFiltrados(idActual, pagina - 1, tamanio)
+	    		    : usuarioService.buscarUsuariosFiltrados(filtro, idActual , pagina - 1, tamanio);
 
 	    		model.addAttribute("usuarios", usuariosPage.getContent());
 	    		model.addAttribute("paginaActual", pagina);
 	    		model.addAttribute("totalPaginas", usuariosPage.getTotalPages());
 	    		model.addAttribute("totalUsuarios", usuariosPage.getTotalElements());
+	    		System.out.println("Vista Usuarios...");
 
 	    }
 
@@ -91,6 +94,7 @@ public class EmpleadoController {
 	        model.addAttribute("paginaActualProducto", paginaProducto);
 	        model.addAttribute("totalPaginasProducto", productosPage.getTotalPages());
 	        model.addAttribute("totalProductos", productosPage.getTotalElements());
+	        System.out.println("Vista Productos...");
 	    }
 
 	    if (seccion.equals("detallePedidos")) {
@@ -103,6 +107,7 @@ public class EmpleadoController {
 	        model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
 	        model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
 	        model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
+	        System.out.println("Vista Pedidos...");
 	    }
 
 	    return "/empleado/inicio";
@@ -137,6 +142,7 @@ public class EmpleadoController {
 		public String mostrarFormularioRegistroProducto(Model model) {
 	    	model.addAttribute("producto", new Producto());
 	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	System.out.println("Bienvenido Empleado al Registro de Productos...");
 	    	return "empleado/formularioRegistrarProducto";
 		}
 
@@ -181,6 +187,7 @@ public class EmpleadoController {
 	    	producto.setActivo(producto.getStock() > 0);
 	    	model.addAttribute("producto", producto);
 	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	System.out.println("Bienvenido Empleado al editos de Productos...");
 	    	return "empleado/formularioActualizarProducto";
 		}
 
@@ -274,28 +281,31 @@ public class EmpleadoController {
 	    //=========================== CATEGORIAS ===================================//
 	    
 		// Listar
-    @GetMapping("/listarCategorias")
+		@GetMapping("/listarCategorias")
     	public String listarCategorias(Model model) {
         model.addAttribute("categorias", categoriaService.listarCategorias());
+        System.out.println("Bienvenido Empleado al Listado Categorias...");
         return "empleado/listarCategorias";
     	}
 
     	// formulario de registro sin ID
-    @GetMapping("/formularioRegistrarCategoria")
+		@GetMapping("/formularioRegistrarCategoria")
 		public String mostrarFormularioRegistroCategoria(Model model) {
-    Categoria categoria = new Categoria();
-    model.addAttribute("categoria", categoria);
-    model.addAttribute("origen", "categorias"); // ← ahora siempre "categorias"
-    return "empleado/formularioRegistrarCategoria";
+			Categoria categoria = new Categoria();
+			model.addAttribute("categoria", categoria);
+    	model.addAttribute("origen", "categorias");
+    	System.out.println("Bienvenido Empleado al Registro Categorias...");
+    	return "empleado/formularioRegistrarCategoria";
 		}
 
 		// formulario para editar
-	@GetMapping("/formularioActualizarCategoria/{id}")
+		@GetMapping("/formularioActualizarCategoria/{id}")
 		public String mostrarFormularioEditarCategoria(@PathVariable("id") int id, Model model) {
-    Categoria categoria = categoriaService.buscarPorId(id);
-    model.addAttribute("categoria", categoria);
-    model.addAttribute("origen", "categorias");
-    return "empleado/formularioRegistrarCategoria";
+			Categoria categoria = categoriaService.buscarPorId(id);
+			model.addAttribute("categoria", categoria);
+			model.addAttribute("origen", "categorias");
+			System.out.println("Bienvenido Empleado al Editor Categorias...");
+			return "empleado/formularioRegistrarCategoria";
 		}
 
 

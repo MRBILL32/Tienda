@@ -37,8 +37,8 @@ public interface UsuarioService {
 	
 	Page<Usuario> listarPaginado(int numeroPagina, int tamanioPagina);
 	
-	Page<Usuario> buscarUsuariosFiltrados(String filtro, int page, int size);
-	Page<Usuario> listarUsuariosFiltrados(int page, int size);
+	Page<Usuario> buscarUsuariosFiltrados(String filtro, int idLogueado, int page, int size);
+	Page<Usuario> listarUsuariosFiltrados(int idLogueado, int page, int size);
 
 	
 }

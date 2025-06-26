@@ -22,7 +22,7 @@
 
 			<a th:href="@{/cliente/verCarrito}"
 			 	class="btn btn-outline-primary mx-2"
-			 	th:classappend="${seccionActiva == 'detallePedidos'} ? ' active'">Carrito</a>			
+			 	th:classappend="${seccionActiva == 'detalleCarrito'} ? ' active'">Carrito</a>			
 			 
             <a th:href="@{/cliente/inicio(seccion='productos')}"
                class="btn btn-outline-success mx-2"
@@ -69,6 +69,7 @@
 		            <th>Producto</th>
 		            <th>Marca</th>
 		            <th>Precio Unitario(S/.)</th>
+					<th>Stock</th>
 		            <th>Categoría</th>
 		            <th>Acciones</th>
 		        </tr>
@@ -78,7 +79,9 @@
 		            <td th:text="${p.nomProd}"></td>
 		            <td th:text="${p.marcaProd}"></td>
 		            <td th:text="${p.precioUnit}"></td>
+					<td th:text="${p.stock}"></td>
 		            <td th:text="${p.categoria.nomCate}"></td>
+					
 		            <td>
 		                <a th:href="@{/cliente/detalleProducto/{id}(id=${p.idProd})}"
 		                   class="btn btn-sm btn-success mb-1">seleccionar</a>

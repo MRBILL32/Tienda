@@ -18,7 +18,7 @@
         <thead class="table-dark">
             <tr>
                 <th>Producto</th>
-                <th>Precio Unitario</th>
+                <th>Precio Unitario(S/.)</th>
                 <th>Cantidad</th>
                 <th>Subtotal</th>
                 <th>Acción</th>
@@ -31,10 +31,10 @@
                 <td th:text="${detalle.cantidad}">1</td>
                 <td>S/. <span th:text="${detalle.subtotal}">0.00</span></td>
                 <td>
-                    <form method="post" th:action="@{/cliente/eliminarDelCarrito}">
-                        <input type="hidden" name="idProd" th:value="${detalle.producto.idProd}">
-                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
-                    </form>
+					<form method="post" th:action="@{/cliente/eliminarDelCarrito}">
+					    <input type="hidden" name="idDetalle" th:value="${detalle.idDetalleCarrito}" />
+					    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+					</form>
                 </td>
             </tr>
         </tbody>
@@ -44,7 +44,9 @@
 
     <div class="mt-3 d-flex gap-3">
         <a th:href="@{/cliente/inicio}" class="btn btn-secondary">Seguir comprando</a>
-        <a th:href="@{/cliente/procesarCompra}" class="btn btn-success">Finalizar compra</a>
+		<form th:action="@{/cliente/comprar}" method="post">
+		    <button type="submit" class="btn btn-success">Finalizar compra</button>
+		</form>
         <form method="post" th:action="@{/cliente/vaciarCarrito}">
             <button type="submit" class="btn btn-warning">Vaciar Carrito</button>
         </form>

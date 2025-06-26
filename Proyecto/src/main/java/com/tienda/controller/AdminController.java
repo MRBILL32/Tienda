@@ -59,10 +59,11 @@ public class AdminController {
 	                        @RequestParam(value = "size", defaultValue = "8") int tamanio,
 	                        Model model, HttpSession session) {
 
-	    Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
-	    if (logueado != null) {
-	        model.addAttribute("idActual", logueado.getIdUser());
-	    }
+		Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
+		if (logueado == null) {
+		    return "redirect:/";
+		}
+		model.addAttribute("idActual", logueado.getIdUser());
 
 	    model.addAttribute("seccionActiva", seccion);
 
@@ -72,6 +73,8 @@ public class AdminController {
 	    if (filtroDetallePedido != null) filtroDetallePedido = filtroDetallePedido.toLowerCase();
 
 	    if (seccion.equals("usuarios")) {
+	    	
+	    	
 	        Page<Usuario> usuariosPage = (filtro == null || filtro.isBlank())
 	                ? usuarioService.listarPaginado(pagina - 1, tamanio)
 	                : usuarioService.buscarPorNombreApellidoORRolPaginado(filtro, pagina - 1, tamanio);
@@ -81,6 +84,7 @@ public class AdminController {
 	        model.addAttribute("paginaActual", pagina);
 	        model.addAttribute("totalPaginas", usuariosPage.getTotalPages());
 	        model.addAttribute("totalUsuarios", usuariosPage.getTotalElements());
+	        System.out.println("Vista Usuarios...");
 	    }
 
 	    if (seccion.equals("productos")) {
@@ -93,6 +97,7 @@ public class AdminController {
 	        model.addAttribute("paginaActualProducto", paginaProducto);
 	        model.addAttribute("totalPaginasProducto", productosPage.getTotalPages());
 	        model.addAttribute("totalProductos", productosPage.getTotalElements());
+	        System.out.println("Vista Productos...");
 	    }
 
 	    if (seccion.equals("detallePedidos")) {
@@ -105,6 +110,7 @@ public class AdminController {
 	        model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
 	        model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
 	        model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
+	        System.out.println("Vista Pedidos...");
 	    }
 
 	    return "/admin/inicio";
@@ -170,6 +176,7 @@ public class AdminController {
     @GetMapping("/listarCategorias")
     public String listarCategorias(Model model) {
         model.addAttribute("categorias", categoriaService.listarCategorias());
+        System.out.println("Bienvenido Administrador al listado de Categorias...");
         return "admin/listarCategorias";
     }
 
@@ -178,7 +185,8 @@ public class AdminController {
 	public String mostrarFormularioRegistroCategoria(Model model) {
     Categoria categoria = new Categoria();
     model.addAttribute("categoria", categoria);
-    model.addAttribute("origen", "categorias"); // ← ahora siempre "categorias"
+    model.addAttribute("origen", "categorias");
+    System.out.println("Bienvenido Administrador al Registro de Categorias...");
     return "admin/formularioRegistrarCategoria";
 	}
 
@@ -188,6 +196,7 @@ public class AdminController {
     Categoria categoria = categoriaService.buscarPorId(id);
     model.addAttribute("categoria", categoria);
     model.addAttribute("origen", "categorias");
+    System.out.println("Bienvenido Administrador al editor de Categorias...");
     return "admin/formularioRegistrarCategoria";
 	}
 
@@ -207,6 +216,7 @@ public class AdminController {
 		public String mostrarFormularioRegistroProducto(Model model) {
 	    	model.addAttribute("producto", new Producto());
 	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	System.out.println("Bienvenido Administrador al Registro de Productos...");
 	    	return "admin/formularioRegistrarProducto";
 		}
 
@@ -250,6 +260,7 @@ public class AdminController {
 	    	producto.setActivo(producto.getStock() > 0);
 	    	model.addAttribute("producto", producto);
 	    	model.addAttribute("categorias", categoriaService.listarCategorias());
+	    	System.out.println("Bienvenido Administrador al Editor de Productos...");
 	    	return "admin/formularioActualizarProducto";
 		}
 

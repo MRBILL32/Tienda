@@ -17,5 +17,14 @@ public interface CarritoRepository extends JpaRepository<Carrito, Integer> {
 
 	@Query("SELECT c FROM Carrito c ORDER BY c.fechaCreacion DESC")
     List<Carrito> listarTodoOrdenado();
+	
+	@Query("SELECT c FROM Carrito c WHERE c.usuario.idUser = :idUsuario")
+	Carrito buscarCarritoActivoPorUsuario(@Param("idUsuario") int idUsuario);
+	
+	@Query("SELECT c FROM Carrito c WHERE c.usuario.idUser = :idUsuario")
+	Carrito buscarPorUsuario(@Param("idUsuario") int idUsuario);
+
+
+	
 }
 

@@ -44,12 +44,15 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
      	long contarPorNombreApellidoORRol(@Param("filtro") String filtro);
     
     	@Query("SELECT u FROM Usuario u WHERE " +
-    	       "(LOWER(u.nombres) LIKE %:filtro% OR LOWER(u.apellidos) LIKE %:filtro% OR LOWER(u.rol.tipoRol) LIKE %:filtro%) " +
-    	       "AND u.estado <> 'Pendiente' AND u.rol.tipoRol <> 'Administrador'")
-    	Page<Usuario> buscarUsuariosFiltrados(@Param("filtro") String filtro, Pageable pageable);
+    		       "(LOWER(u.nombres) LIKE %:filtro% OR LOWER(u.apellidos) LIKE %:filtro% OR LOWER(u.rol.tipoRol) LIKE %:filtro%) " +
+    		       "AND u.estado <> 'Pendiente' AND " +
+    		       "(u.rol.tipoRol NOT IN ('Administrador', 'Empleado') OR u.idUser = :idLogueado)")
+    		Page<Usuario> buscarUsuariosFiltrados(@Param("filtro") String filtro, @Param("idLogueado") int idLogueado, Pageable pageable);
 
-    	@Query("SELECT u FROM Usuario u WHERE u.estado <> 'Pendiente' AND u.rol.tipoRol <> 'Administrador'")
-    	Page<Usuario> listarUsuariosFiltrados(Pageable pageable);
+    	
+    	@Query("SELECT u FROM Usuario u WHERE u.estado <> 'Pendiente' AND " +
+    		       "(u.rol.tipoRol NOT IN ('Administrador', 'Empleado') OR u.idUser = :idLogueado)")
+    		Page<Usuario> listarUsuariosFiltrados(@Param("idLogueado") int idLogueado, Pageable pageable);
 
     	
 

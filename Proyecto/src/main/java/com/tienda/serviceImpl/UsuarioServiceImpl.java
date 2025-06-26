@@ -158,16 +158,17 @@ public class UsuarioServiceImpl implements UsuarioService {
 	}
 
 	@Override
-	public Page<Usuario> buscarUsuariosFiltrados(String filtro, int page, int size) {
+	public Page<Usuario> buscarUsuariosFiltrados(String filtro, int idLogueado, int page, int size) {
 	    Pageable pageable = PageRequest.of(page, size);
-	    return usuarioRepository.buscarUsuariosFiltrados(filtro, pageable);
+	    return usuarioRepository.buscarUsuariosFiltrados(filtro, idLogueado, pageable);
 	}
 
 	@Override
-	public Page<Usuario> listarUsuariosFiltrados(int page, int size) {
+	public Page<Usuario> listarUsuariosFiltrados(int idLogueado, int page, int size) {
 	    Pageable pageable = PageRequest.of(page, size);
-	    return usuarioRepository.listarUsuariosFiltrados(pageable);
+	    return usuarioRepository.listarUsuariosFiltrados(idLogueado, pageable);
 	}
+
 
 
 	

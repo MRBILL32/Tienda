@@ -38,7 +38,7 @@ public class LoginController {
 
         if (usuarioAutenticado != null && "Aprobado".equalsIgnoreCase(usuarioAutenticado.getEstado())) {
           
-            session.setAttribute("usuario", usuarioAutenticado);
+        	session.setAttribute("usuarioLogueado", usuarioAutenticado);
 
             String rol = usuarioAutenticado.getRol().getTipoRol();
             if ("Administrador".equalsIgnoreCase(rol)) {

@@ -14,4 +14,9 @@ public interface DetalleCarritoService {
 	Optional<DetalleCarrito> buscarPorCarritoYProducto(Integer idCarrito, Integer idProd);
 	
 	void eliminar(Integer idDetalleCarrito);
+	
+	void eliminarPorCarrito(Integer idCarrito);
+
+	DetalleCarrito actualizar(DetalleCarrito detalle);
+
 }
