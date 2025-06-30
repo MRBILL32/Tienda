@@ -146,6 +146,7 @@
 		        <th>Cantidad</th>
 		        <th>Precio(S/.)</th>
 		        <th>Subtotal(S/.)</th>
+				<th>Acciones</th>
 		    </tr>
 		    </thead>
 		    <tbody>
@@ -155,6 +156,15 @@
 		        <td th:text="${d.cantidad}"></td>
 		        <td th:text="${d.precioUnit}"></td>
 		        <td th:text="${d.cantidad * d.precioUnit}"></td>
+				<td>
+				    <form th:action="@{/cliente/eliminarDetallePedido}" method="post"
+				          onsubmit="return confirm('¿Cancelar este pedido?');">
+				        <input type="hidden" name="seccion" value="detallePedidos" />
+				        <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}" />
+				        <input type="hidden" name="idProducto" th:value="${d.producto.idProd}" />
+				        <button type="submit" class="btn btn-sm btn-danger">Cancelar</button>
+				    </form>
+				</td>
 		    </tr>
 		    </tbody>
 		</table>

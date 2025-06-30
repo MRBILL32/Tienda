@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dirs>
+    <entry loc="C:\Program Files\Java\jdk-17" stamp="1737657025620"/>
     <entry loc="D:\Eclipse\SpringToolSuite4\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529" stamp="1742498403644"/>
+    <entry loc="D:\spring 4.30.0\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529\jre" stamp="1748485635888"/>
     <entry loc="D:\Eclipse\SpringToolSuite4\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529\jre" stamp="1742498403597"/>
     <entry loc="E:\spring tools\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529\jre" stamp="1744944056000"/>
     <entry loc="E:\spring tools\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529" stamp="1744944056000"/>
     <entry loc="C:\Program Files\Java\jre1.8.0_451" stamp="1747336867103"/>
+    <entry loc="D:\spring 4.30.0\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_21.0.6.v20250130-0529" stamp="1748485637836"/>
+    <entry loc="C:\Program Files\Java\jre1.8.0_441" stamp="1737661314101"/>
+    <entry loc="C:\Program Files\Java\jdk-1.8" stamp="1737657002779"/>
 </dirs>

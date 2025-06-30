@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.tienda.entity.Carrito;
 import com.tienda.entity.DetalleCarrito;
@@ -163,7 +164,8 @@ public class ClienteController {
 
     // Ver carrito
     @GetMapping("/verCarrito")
-    public String verCarrito(HttpSession session, Model model) {
+    public String verCarrito(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
 
         if (usuario == null) {
@@ -171,7 +173,17 @@ public class ClienteController {
         }
 
         Carrito carrito = carritoService.buscarPorUsuario(usuario.getIdUser());
+
+        if (carrito == null) {
+            return "redirect:/cliente/inicio";
+        }
+
         List<DetalleCarrito> detalle = detalleCarritoService.listarPorCarrito(carrito.getIdCarrito());
+
+        if (detalle == null || detalle.isEmpty()) {
+            redirectAttributes.addFlashAttribute("mensaje", "Tu carrito está vacío. Agrega productos para continuar.");
+            return "redirect:/cliente/inicio";
+        }
 
         BigDecimal total = detalle.stream()
                 .map(DetalleCarrito::getSubtotal)
@@ -181,7 +193,6 @@ public class ClienteController {
         model.addAttribute("total", total);
         return "cliente/verCarrito";
     }
-
 
     // Eliminar producto del carrito
     @PostMapping("/eliminarDelCarrito")
@@ -207,6 +218,7 @@ public class ClienteController {
         return "redirect:/cliente/inicio";
     }
     
+    // Realizar Compra
     @PostMapping("/comprar")
     public String comprar(HttpSession session, RedirectAttributes redirectAttrs) {
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
@@ -277,7 +289,47 @@ public class ClienteController {
         redirectAttrs.addFlashAttribute("mensaje", "Compra realizada con éxito.");
         return "redirect:/cliente/inicio?seccion=detallePedidos";
     }
-
-
     
+    //Conteo Detalle Pedido por filtro
+    @GetMapping("/contarDetallePedido")
+    @ResponseBody
+    public long contadorDetallePedido(@RequestParam("filtro") String filtro) {
+    	return detallePedidoService.contadorDetallePedido(filtro);
+    }
+    
+    //Eliminar detalle de pedido
+    @PostMapping("/eliminarDetallePedido")
+    public String eliminarDetallePedido(
+            @RequestParam("idPedido") int idPedido,
+            @RequestParam("idProducto") int idProducto,
+            @RequestParam("seccion") String seccion,
+            RedirectAttributes redirect) {
+
+        DetallePedidoId id = new DetallePedidoId(idPedido, idProducto);
+
+        // 1. Obtener el detalle del pedido antes de eliminarlo
+        DetallePedido detalle = detallePedidoService.buscarPorId(id); // Este método debe existir
+        if (detalle == null) {
+            redirect.addFlashAttribute("error", "No se encontró el detalle del pedido.");
+            return "redirect:/cliente/inicio?seccion=" + seccion;
+        }
+
+        // 2. Recuperar producto y actualizar stock
+        Producto producto = productoService.buscarPorId(idProducto);
+        if (producto == null) {
+            redirect.addFlashAttribute("error", "No se encontró el producto.");
+            return "redirect:/cliente/inicio?seccion=" + seccion;
+        }
+
+        int cantidadRecuperada = detalle.getCantidad(); // Asumiendo que DetallePedido tiene un campo `cantidad`
+        producto.setStock(producto.getStock() + cantidadRecuperada);
+        productoService.actualizarProducto(producto); // Asegúrate de que este método persista el cambio
+
+        // 3. Eliminar el detalle del pedido
+        detallePedidoService.eliminar(id);
+
+        redirect.addFlashAttribute("mensaje", "El producto '" + producto.getNomProd() +
+                "' ha sido cancelado y su stock (" + cantidadRecuperada + ") ha sido restaurado.");
+        return "redirect:/cliente/inicio?seccion=" + seccion;
+    }
 }
