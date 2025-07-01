@@ -49,6 +49,7 @@ public class LoginController {
                 return "redirect:/cliente/inicio";
             }
         } else {
+        	System.out.println("Error al Procesar Credenciales...");
             model.addAttribute("error", "Credenciales inválidas o cuenta no aprobada");
             return "sesion/login";
         }

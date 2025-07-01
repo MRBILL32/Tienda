@@ -1,5 +1,7 @@
 package com.tienda.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ public interface DetallePedidoService {
 	DetallePedido guardar(DetallePedido detalle);
 	
 	DetallePedido buscarPorId(DetallePedidoId id);
+	
+	List<DetallePedido> buscarPorIdPedido(int idPedido);
 	
 	Page<DetallePedido> buscarTodosPorFiltro(String filtro, int pagina, int tamanio);
 	

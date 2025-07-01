@@ -1,11 +1,15 @@
 body {
     font-family: 'Segoe UI', sans-serif;
-    background-color: #fff9f0;
+    background-color: antiquewhite;
 }
 
 h2 {
     font-weight: bold;
     color: #2c3e50;
+}
+
+.celda-botones {
+    min-height: 65px;
 }
 
 .btn {

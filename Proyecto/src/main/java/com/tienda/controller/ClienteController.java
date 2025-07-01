@@ -1,8 +1,14 @@
 package com.tienda.controller;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -30,7 +36,12 @@ import com.tienda.service.DetallePedidoService;
 import com.tienda.service.PedidoService;
 import com.tienda.service.ProductoService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 @Controller
 @RequestMapping("/cliente")
@@ -50,6 +61,7 @@ public class ClienteController {
     
     @Autowired
     private CarritoService carritoService;
+    
 
     // Listar todas las vistas
     @GetMapping("/inicio")
@@ -62,7 +74,9 @@ public class ClienteController {
                             Model model, HttpSession session) {
 
     	Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
-		if (logueado == null) {
+		
+    	if (logueado == null) {
+			System.out.println("Error al Buscar Usuario...");
 		    return "redirect:/";
 		}
 		model.addAttribute("idActual", logueado.getIdUser());
@@ -71,10 +85,12 @@ public class ClienteController {
         model.addAttribute("seccionActiva", seccion);
 
         if (seccion.equals("productos")) {
+        	
             Page<Producto> productosPage = (filtroProducto == null || filtroProducto.isBlank())
                     ? productoService.buscarActivoPorFiltro("", paginaProducto - 1, tamanio, true)
                     : productoService.buscarActivoPorFiltro(filtroProducto, paginaProducto - 1, tamanio, true);
 
+            System.out.println("Cargando Lista de Productos...");
             model.addAttribute("productos", productosPage.getContent());
             model.addAttribute("filtroProducto", filtroProducto);
             model.addAttribute("paginaActualProducto", paginaProducto);
@@ -87,12 +103,46 @@ public class ClienteController {
                     ? detallePedidoService.buscarPorFiltroYUsuario("", paginaDetallePedido - 1, tamanio, idUser)
                     : detallePedidoService.buscarPorFiltroYUsuario(filtroDetallePedido, paginaDetallePedido - 1, tamanio, idUser);
 
-            model.addAttribute("detallePedidos", detallePedidosPage.getContent());
+            System.out.println("Cargando Reporte de Pedidos...");
+
+
+            // Filtrar para evitar nulos y luego quedarnos con uno por pedido
+            List<DetallePedido> todosLosDetalles = detallePedidosPage.getContent().stream()
+            	    .filter(d -> d != null && d.getPedido() != null && d.getProducto() != null)
+            	    .toList(); // O usa .collect(Collectors.toList()) si estás en Java 8
+
+
+            // Agrupar
+            Map<Integer, DetallePedido> primerosPorPedido = new LinkedHashMap<>();
+            Map<Integer, BigDecimal> totalPorPedido = new HashMap<>();
+
+            for (DetallePedido d : todosLosDetalles) {
+                int idPedido = d.getPedido().getIdPedido();
+
+                // Solo agregamos el primer DetallePedido por pedido
+                if (!primerosPorPedido.containsKey(idPedido)) {
+                    primerosPorPedido.put(idPedido, d);
+                }
+
+                // Calculamos total por pedido si aún no se ha hecho
+                if (!totalPorPedido.containsKey(idPedido)) {
+                    BigDecimal total = d.getPedido().getDetalles().stream()
+                        .map(dp -> dp.getPrecioUnit().multiply(BigDecimal.valueOf(dp.getCantidad())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    totalPorPedido.put(idPedido, total);
+                }
+            }
+
+
+            model.addAttribute("detallePedidos", primerosPorPedido.values());
+            model.addAttribute("totalPorPedido", totalPorPedido);
             model.addAttribute("filtroDetallePedido", filtroDetallePedido);
             model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
             model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
             model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
         }
+
 
         return "cliente/inicio";
     }
@@ -101,6 +151,8 @@ public class ClienteController {
     @GetMapping("/detalleProducto/{id}")
     public String detalleProducto(@PathVariable("id") int id, Model model) {
         Producto producto = productoService.buscarPorId(id);
+        
+        System.out.println("Cargando Seleccion de Producto...");
         model.addAttribute("producto", producto);
         model.addAttribute("cantidad", 1);
         return "cliente/detalleProducto";
@@ -175,13 +227,15 @@ public class ClienteController {
         Carrito carrito = carritoService.buscarPorUsuario(usuario.getIdUser());
 
         if (carrito == null) {
+        	System.out.println("Error al Cargar Carrito de Compras...");
             return "redirect:/cliente/inicio";
         }
 
         List<DetalleCarrito> detalle = detalleCarritoService.listarPorCarrito(carrito.getIdCarrito());
 
         if (detalle == null || detalle.isEmpty()) {
-            redirectAttributes.addFlashAttribute("mensaje", "Tu carrito está vacío. Agrega productos para continuar.");
+            redirectAttributes.addFlashAttribute("error", "Tu carrito está vacío. Agrega productos para continuar.");
+            System.out.println("Carrito Vacio...");
             return "redirect:/cliente/inicio";
         }
 
@@ -189,6 +243,7 @@ public class ClienteController {
                 .map(DetalleCarrito::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        System.out.println("Cargando Carrito de Compras...");
         model.addAttribute("carrito", detalle);
         model.addAttribute("total", total);
         return "cliente/verCarrito";
@@ -286,6 +341,7 @@ public class ClienteController {
         // Eliminar carrito de la sesión
         session.removeAttribute("carrito");
 
+        System.out.println("Compra Procesada, FElicidades :D...");
         redirectAttrs.addFlashAttribute("mensaje", "Compra realizada con éxito.");
         return "redirect:/cliente/inicio?seccion=detallePedidos";
     }
@@ -296,6 +352,113 @@ public class ClienteController {
     public long contadorDetallePedido(@RequestParam("filtro") String filtro) {
     	return detallePedidoService.contadorDetallePedido(filtro);
     }
+    
+    //exportar reporte producto
+    @GetMapping("/pedido/{idPedido}/producto/{idProducto}")
+    public void exportarReporteProducto(
+        @PathVariable("idPedido") int idPedido,
+        @PathVariable("idProducto") int idProducto,
+        HttpServletResponse response) {
+        try {
+            InputStream jasperStream = getClass().getResourceAsStream("/reportes/individual.jasper");
+            if (jasperStream == null) {
+                throw new FileNotFoundException("No se encontró el archivo del reporte.");
+            }
+
+            // Crea el ID compuesto
+            DetallePedidoId detalleId = new DetallePedidoId(idPedido, idProducto);
+
+            // Busca el detalle específico
+            DetallePedido detalle = detallePedidoService.buscarPorId(detalleId);
+            List<DetallePedido> detalles = Collections.singletonList(detalle);
+
+            // Obtén el pedido y el usuario para el encabezado
+            Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
+            Usuario usuario = null;
+            String nombreCliente = "";
+
+            if (pedido != null && pedido.getUsuario() != null) {
+                usuario = pedido.getUsuario();
+                nombreCliente = usuario.getNombres() + " " + usuario.getApellidos();
+            }
+
+            // Parámetros
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("idPedido", idPedido);
+            parametros.put("nomCli", nombreCliente);
+
+            // Agregar otros datos si el usuario no es null
+            if (usuario != null) {
+                parametros.put("dni", usuario.getDni());
+                parametros.put("login", usuario.getLogin());
+                parametros.put("correo", usuario.getCorreo());
+            }
+
+            System.out.println("Cargando Reporte de Producto en Formato PDF.");
+
+            // DataSource
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
+
+            // Genera el PDF
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "inline; filename=producto_" + idProducto + ".pdf");
+            JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    
+    //Exportar Reporte Pedido
+    @GetMapping("/pedido/{id}")
+    public void exportarReportePedido(@PathVariable("id") int idPedido, HttpServletResponse response) {
+        try {
+            InputStream jasperStream = getClass().getResourceAsStream("/reportes/individual.jasper");
+            if (jasperStream == null) {
+                throw new FileNotFoundException("No se encontró el archivo del reporte.");
+            }
+
+            // 1. Obtén los detalles del pedido
+            List<DetallePedido> detalles = detallePedidoService.buscarPorIdPedido(idPedido);
+
+            // 2. Obtén el pedido y el cliente
+            Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
+            Usuario usuario = null;
+            String nombreCliente = "";
+
+            if (pedido != null && pedido.getUsuario() != null) {
+                usuario = pedido.getUsuario();
+                nombreCliente = usuario.getNombres() + " " + usuario.getApellidos();
+            }
+
+            System.out.println("Cargando Reporte de Pedido en Formato PDF.");
+
+            // 3. Crea el DataSource
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
+
+            // 4. Parámetros
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("idPedido", idPedido);
+            parametros.put("nomCli", nombreCliente);
+            parametros.put("dni", usuario.getDni());
+            parametros.put("login", usuario.getLogin());
+            parametros.put("correo", usuario.getCorreo());
+            
+
+            // 5. Llena el reporte
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
+
+            // 6. Exporta a PDF
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "inline; filename=pedido_" + idPedido + ".pdf");
+            JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     
     //Eliminar detalle de pedido
     @PostMapping("/eliminarDetallePedido")

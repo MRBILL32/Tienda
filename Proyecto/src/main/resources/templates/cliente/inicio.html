@@ -54,7 +54,7 @@
 	        <div class="input-group mb-3">
 	            <input type="text" name="filtroProducto" th:value="${filtroProducto}" class="form-control"
 	                   placeholder="Buscar por nombre, marca o categoría...">
-	            <button type="submit" class="btn btn-primary">Buscar</button>
+	            <button type="submit" class="btn btn-primary">🔍 Buscar</button>
 	        </div>
 	    </form>
 
@@ -84,7 +84,7 @@
 					
 		            <td>
 		                <a th:href="@{/cliente/detalleProducto/{id}(id=${p.idProd})}"
-		                   class="btn btn-sm btn-success mb-1">seleccionar</a>
+		                   class="btn btn-sm btn-success mb-1">📄 seleccionar</a>
 		            </td>
 		        </tr>
 		    </tbody>
@@ -129,7 +129,7 @@
 	        <div class="input-group mb-3">
 	            <input type="text" name="filtroDetallePedido" th:value="${filtroDetallePedido}" class="form-control"
 	                   placeholder="Buscar por cliente, producto o pedido...">
-	            <button type="submit" class="btn btn-primary">Buscar</button>
+	            <button type="submit" class="btn btn-primary">🔍 Buscar</button>
 	        </div>
 	    </form>
 
@@ -140,35 +140,100 @@
 	    <!-- TABLA -->
 		<table class="table table-striped table-bordered text-center align-middle">
 		    <thead class="table-warning">
-		    <tr>
-		        <th>Producto Comprado</th>
-		        <th>Fecha</th>
-		        <th>Cantidad</th>
-		        <th>Precio(S/.)</th>
-		        <th>Subtotal(S/.)</th>
-				<th>Acciones</th>
-		    </tr>
+		        <tr>
+		            <th>Producto Comprado</th>
+		            <th>Fecha</th>
+		            <th>Cantidad</th>
+		            <th>Precio(S/.)</th>
+		            <th>Subtotal(S/.)</th>
+		            <th>Acciones</th>
+		        </tr>
 		    </thead>
 		    <tbody>
-		    <tr th:each="d : ${detallePedidos}">
-		        <td th:text="${d.producto.nomProd}"></td>
-		        <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
-		        <td th:text="${d.cantidad}"></td>
-		        <td th:text="${d.precioUnit}"></td>
-		        <td th:text="${d.cantidad * d.precioUnit}"></td>
-				<td>
-				    <form th:action="@{/cliente/eliminarDetallePedido}" method="post"
-				          onsubmit="return confirm('¿Cancelar este pedido?');">
-				        <input type="hidden" name="seccion" value="detallePedidos" />
-				        <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}" />
-				        <input type="hidden" name="idProducto" th:value="${d.producto.idProd}" />
-				        <button type="submit" class="btn btn-sm btn-danger">Cancelar</button>
-				    </form>
-				</td>
-		    </tr>
+		        <th:block th:each="d : ${detallePedidos}">
+		            <!-- Fila principal del pedido -->
+		            <tr th:if="${d != null and d.pedido != null and d.producto != null}">
+		                <td>
+		                    <span th:text="${d.producto.nomProd}"></span><br/>
+		                    <small th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) > 1}" class="text-muted fst-italic">
+		                        (Contiene <span th:text="${#lists.size(d.pedido.detalles)}"></span> productos)
+		                    </small>
+		                </td>
+		                <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
+		                <td th:text="${d.cantidad}"></td>
+		                <td th:text="${d.precioUnit}"></td>
+		                <td th:text="${d.cantidad * d.precioUnit}"></td>
+		                <td class="celda-botones d-flex justify-content-center align-items-center gap-2" style="min-height: 65px;">
+		                    <button type="button"
+		                            class="btn btn-sm btn-outline-secondary"
+		                            th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) > 1}"
+		                            th:id="'btn-toggle-' + ${d.pedido.idPedido}"
+		                            th:onclick="'toggleDetalles(' + ${d.pedido.idPedido} + ')'">
+		                        🔽 Desplegar
+		                    </button>
+
+		                    <!-- Cancelar pedido si solo tiene 1 producto -->
+		                    <form th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
+		                          th:action="@{/cliente/eliminarDetallePedido}" method="post"
+		                          onsubmit="return confirm('¿Cancelar este pedido?');">
+		                        <input type="hidden" name="seccion" value="detallePedidos"/>
+		                        <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}"/>
+		                        <input type="hidden" name="idProducto" th:value="${d.producto.idProd}"/>
+		                        <button type="submit" class="btn btn-sm btn-outline-danger">❌ Cancelar Pedido</button>
+		                    </form>
+
+		                    <!-- Reporte general -->
+		                    <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) > 1}"
+		                       th:href="@{/cliente/pedido/{id}(id=${d.pedido.idPedido})}"
+		                       class="btn btn-sm btn-primary"
+		                       target="_blank">🧾 Ver Reporte Pedido</a>
+
+		                    <!-- Reporte individual -->
+		                    <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
+		                       th:href="@{/cliente/pedido/{idPedido}/producto/{idProducto}(idPedido=${d.pedido.idPedido}, idProducto=${d.producto.idProd})}"
+		                       class="btn btn-sm btn-success"
+		                       target="_blank">📄 Ver Reporte Producto</a>
+		                </td>
+		            </tr>
+
+		            <!-- Subproductos -->
+		            <tr th:each="extra : ${d.pedido.detalles}"
+		                th:if="${extra.producto.idProd != d.producto.idProd}"
+		                th:class="'detalle-pedido-' + ${d.pedido.idPedido}"
+		                style="display: none;">
+		                
+		                <td>
+		                    <span class="ms-3">↳</span>
+		                    <span th:text="${extra.producto.nomProd}"></span>
+		                </td>
+		                <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
+		                <td th:text="${extra.cantidad}"></td>
+		                <td th:text="${extra.precioUnit}"></td>
+		                <td th:text="${extra.cantidad * extra.precioUnit}"></td>
+		                <td style="min-height: 65px;">
+		                    <form th:action="@{/cliente/eliminarDetallePedido}" method="post"
+		                          onsubmit="return confirm('¿Eliminar este producto del pedido?');">
+		                        <input type="hidden" name="seccion" value="detallePedidos"/>
+		                        <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}"/>
+		                        <input type="hidden" name="idProducto" th:value="${extra.producto.idProd}"/>
+		                        <button type="submit" class="btn btn-sm btn-outline-danger">❌ Eliminar Producto</button>
+		                    </form>
+		                </td>
+		            </tr>
+					
+					<tr th:if="${totalPorPedido[d.pedido.idPedido] != null}"
+					    th:class="'detalle-pedido-' + ${d.pedido.idPedido}"
+					    style="display: none; background-color: #dff7ff; font-weight: bold;">
+					    <td colspan="4" class="text-end">Sumatoria de Productos:</td>
+					    <td colspan="2" th:text="'S/ ' + ${#numbers.formatDecimal(totalPorPedido[d.pedido.idPedido], 1, 'POINT', 2, 'POINT')}"></td>
+					</tr>
+
+					
+		        </th:block>
 		    </tbody>
 		</table>
 
+		
 	    <!-- PAGINACIÓN -->
 	    <nav th:if="${totalPaginasDetallePedido > 1}">
 	        <ul class="pagination justify-content-center">
@@ -190,4 +255,19 @@
 	    </nav>
 	</div>
 </body>
+
+<script>
+    function toggleDetalles(idPedido) {
+        const filas = document.querySelectorAll('.detalle-pedido-' + idPedido);
+        const boton = document.getElementById('btn-toggle-' + idPedido);
+
+        let estaVisible = Array.from(filas).some(f => f.style.display === 'table-row');
+        filas.forEach(f => f.style.display = estaVisible ? 'none' : 'table-row');
+
+        if (boton) {
+            boton.innerText = estaVisible ? '🔽 Desplegar' : '🔼 Replegar';
+        }
+    }
+</script>
+
 </html>

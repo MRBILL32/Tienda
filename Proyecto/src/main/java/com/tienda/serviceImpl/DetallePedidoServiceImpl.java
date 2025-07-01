@@ -84,5 +84,11 @@ public class DetallePedidoServiceImpl implements DetallePedidoService{
 	    return detallePedidoRepository.buscarTodosPorFiltroyUsuario(filtro, idUser, pageable);
 	}
 
+
+	@Override
+	public List<DetallePedido> buscarPorIdPedido(int idPedido) {
+	    return detallePedidoRepository.findByPedido_IdPedido(idPedido);
+	}
+
 	
 }
