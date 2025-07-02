@@ -43,6 +43,7 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
+
 @Controller
 @RequestMapping("/cliente")
 public class ClienteController {
@@ -135,6 +136,7 @@ public class ClienteController {
             }
 
 
+            System.out.println("Cargando Lista de Pedidos...");
             model.addAttribute("detallePedidos", primerosPorPedido.values());
             model.addAttribute("totalPorPedido", totalPorPedido);
             model.addAttribute("filtroDetallePedido", filtroDetallePedido);
@@ -359,20 +361,17 @@ public class ClienteController {
         @PathVariable("idPedido") int idPedido,
         @PathVariable("idProducto") int idProducto,
         HttpServletResponse response) {
+
         try {
-            InputStream jasperStream = getClass().getResourceAsStream("/reportes/individual.jasper");
+            InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfProducto.jasper");
             if (jasperStream == null) {
                 throw new FileNotFoundException("No se encontró el archivo del reporte.");
             }
 
-            // Crea el ID compuesto
             DetallePedidoId detalleId = new DetallePedidoId(idPedido, idProducto);
-
-            // Busca el detalle específico
             DetallePedido detalle = detallePedidoService.buscarPorId(detalleId);
             List<DetallePedido> detalles = Collections.singletonList(detalle);
 
-            // Obtén el pedido y el usuario para el encabezado
             Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
             Usuario usuario = null;
             String nombreCliente = "";
@@ -382,12 +381,10 @@ public class ClienteController {
                 nombreCliente = usuario.getNombres() + " " + usuario.getApellidos();
             }
 
-            // Parámetros
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("idPedido", idPedido);
             parametros.put("nomCli", nombreCliente);
 
-            // Agregar otros datos si el usuario no es null
             if (usuario != null) {
                 parametros.put("dni", usuario.getDni());
                 parametros.put("login", usuario.getLogin());
@@ -396,25 +393,23 @@ public class ClienteController {
 
             System.out.println("Cargando Reporte de Producto en Formato PDF.");
 
-            // DataSource
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
-
-            // Genera el PDF
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
+
+            // Tipo de contenido PDF sin encabezado personalizado
             response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "inline; filename=producto_" + idProducto + ".pdf");
             JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    
     //Exportar Reporte Pedido
     @GetMapping("/pedido/{id}")
     public void exportarReportePedido(@PathVariable("id") int idPedido, HttpServletResponse response) {
         try {
-            InputStream jasperStream = getClass().getResourceAsStream("/reportes/individual.jasper");
+            InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfPedido.jasper");
             if (jasperStream == null) {
                 throw new FileNotFoundException("No se encontró el archivo del reporte.");
             }
@@ -451,14 +446,12 @@ public class ClienteController {
 
             // 6. Exporta a PDF
             response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition", "inline; filename=pedido_" + idPedido + ".pdf");
             JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
 
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
     
     //Eliminar detalle de pedido
     @PostMapping("/eliminarDetallePedido")

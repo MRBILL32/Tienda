@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <qualifiedTypeNameHistroy>
-    <fullyQualifiedTypeName name="lombok.Setter"/>
-    <fullyQualifiedTypeName name="org.springframework.data.domain.Pageable"/>
-    <fullyQualifiedTypeName name="org.springframework.data.domain.Page"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.ResponseBody"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestMapping"/>
     <fullyQualifiedTypeName name="java.lang.Exception"/>
@@ -26,9 +23,7 @@
     <fullyQualifiedTypeName name="org.springframework.data.repository.query.Param"/>
     <fullyQualifiedTypeName name="org.springframework.data.domain.PageRequest"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PostMapping"/>
-    <fullyQualifiedTypeName name="java.util.ArrayList"/>
     <fullyQualifiedTypeName name="java.util.Optional"/>
-    <fullyQualifiedTypeName name="java.math.BigDecimal"/>
     <fullyQualifiedTypeName name="org.springframework.web.servlet.mvc.support.RedirectAttributes"/>
     <fullyQualifiedTypeName name="com.tienda.entity.DetalleCarrito"/>
     <fullyQualifiedTypeName name="com.tienda.service.CarritoService"/>
@@ -39,7 +34,6 @@
     <fullyQualifiedTypeName name="com.tienda.entity.Pedido"/>
     <fullyQualifiedTypeName name="java.time.LocalDateTime"/>
     <fullyQualifiedTypeName name="java.time.LocalDate"/>
-    <fullyQualifiedTypeName name="com.tienda.service.PedidoService"/>
     <fullyQualifiedTypeName name="com.tienda.entity.DetallePedidoId"/>
     <fullyQualifiedTypeName name="org.springframework.transaction.annotation.Transactional"/>
     <fullyQualifiedTypeName name="sun.jvm.hotspot.debugger.DataSource"/>
@@ -53,11 +47,17 @@
     <fullyQualifiedTypeName name="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
     <fullyQualifiedTypeName name="net.sf.jasperreports.engine.JasperPrint"/>
     <fullyQualifiedTypeName name="net.sf.jasperreports.engine.JasperFillManager"/>
-    <fullyQualifiedTypeName name="net.sf.jasperreports.engine.JasperExportManager"/>
     <fullyQualifiedTypeName name="java.util.List"/>
     <fullyQualifiedTypeName name="java.util.Collections"/>
-    <fullyQualifiedTypeName name="java.util.LinkedHashMap"/>
     <fullyQualifiedTypeName name="java.util.stream.Collectors"/>
     <fullyQualifiedTypeName name="com.tienda.entity.DetallePedido"/>
     <fullyQualifiedTypeName name="com.tienda.entity.Usuario"/>
+    <fullyQualifiedTypeName name="net.sf.jasperreports.pdf.SimplePdfExporterConfiguration"/>
+    <fullyQualifiedTypeName name="org.hibernate.tool.schema.spi.Exporter"/>
+    <fullyQualifiedTypeName name="net.sf.jasperreports.export.Exporter"/>
+    <fullyQualifiedTypeName name="net.sf.jasperreports.engine.JasperExportManager"/>
+    <fullyQualifiedTypeName name="java.math.BigDecimal"/>
+    <fullyQualifiedTypeName name="com.tienda.service.PedidoService"/>
+    <fullyQualifiedTypeName name="java.util.LinkedHashMap"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
 </qualifiedTypeNameHistroy>

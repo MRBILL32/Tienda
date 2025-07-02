@@ -262,20 +262,46 @@
 		        <th>Cantidad</th>
 		        <th>Precio(S/.)</th>
 		        <th>Subtotal(S/.)</th>
+		        <th>Acciones</th>
 		    </tr>
 		    </thead>
-		    <tbody>
-		    <tr th:each="d : ${detallePedidos}">
-		        <td th:text="${d.pedido.usuario.nombres + ' ' + d.pedido.usuario.apellidos}"></td>
-		        <td th:text="${d.producto.nomProd}"></td>
-		        <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
-		        <td th:text="${d.cantidad}"></td>
-		        <td th:text="${d.precioUnit}"></td>
-		        <td th:text="${d.cantidad * d.precioUnit}"></td>
-		    </tr>
-		    </tbody>
-		</table>
+			<tbody>
+			    <th:block th:with="prevId=-1">
+			        <th:block th:each="d, iterStat : ${detallePedidos}">
+			            <tr>
+			                <td th:text="${d.pedido.usuario.nombres + ' ' + d.pedido.usuario.apellidos}"></td>
+			                <td th:text="${d.producto.nomProd}"></td>
+			                <td th:text="${#temporals.format(d.pedido.fecha, 'dd/MM/yyyy')}"></td>
+			                <td th:text="${d.cantidad}"></td>
+			                <td th:text="${d.precioUnit}"></td>
+			                <td th:text="${d.cantidad * d.precioUnit}"></td>
+			                <td class="d-flex justify-content-center gap-2">
 
+			                    <!-- Botón PDF o Parte del pedido -->
+			                    <th:block th:if="${iterStat.index == 0 or detallePedidos[iterStat.index - 1].pedido.idPedido != d.pedido.idPedido}">
+			                        <!-- Producto cabecera: mostrar botón PDF -->
+			                        <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
+			                           th:href="@{/empleado/pedido/{idPedido}/producto/{idProducto}(idPedido=${d.pedido.idPedido}, idProducto=${d.producto.idProd})}"
+			                           class="btn btn-sm btn-success"
+			                           target="_blank">📄 PDF Producto</a>
+
+			                        <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) > 1}"
+			                           th:href="@{/empleado/pedido/{id}(id=${d.pedido.idPedido})}"
+			                           class="btn btn-sm btn-primary"
+			                           target="_blank">🧾 PDF Pedido</a>
+			                    </th:block>
+
+			                    <th:block th:if="${iterStat.index > 0 and detallePedidos[iterStat.index - 1].pedido.idPedido == d.pedido.idPedido}">
+			                        <!-- Producto adicional: marcar como parte del pedido -->
+									<button class="btn btn-sm" style="background-color: #dff7ff; color: #000;" disabled>🧩 Parte del pedido </button>
+			                    </th:block>
+			                </td>
+			            </tr>
+			        </th:block>
+			    </th:block>
+			</tbody>
+		</table>
+		
 	    <!-- PAGINACIÓN -->
 	    <nav th:if="${totalPaginasDetallePedido > 1}">
 	        <ul class="pagination justify-content-center">

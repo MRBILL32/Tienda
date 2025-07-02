@@ -172,27 +172,28 @@
 		                        🔽 Desplegar
 		                    </button>
 
-		                    <!-- Cancelar pedido si solo tiene 1 producto -->
-		                    <form th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
-		                          th:action="@{/cliente/eliminarDetallePedido}" method="post"
-		                          onsubmit="return confirm('¿Cancelar este pedido?');">
-		                        <input type="hidden" name="seccion" value="detallePedidos"/>
-		                        <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}"/>
-		                        <input type="hidden" name="idProducto" th:value="${d.producto.idProd}"/>
-		                        <button type="submit" class="btn btn-sm btn-outline-danger">❌ Cancelar Pedido</button>
-		                    </form>
-
 		                    <!-- Reporte general -->
 		                    <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) > 1}"
 		                       th:href="@{/cliente/pedido/{id}(id=${d.pedido.idPedido})}"
 		                       class="btn btn-sm btn-primary"
-		                       target="_blank">🧾 Ver Reporte Pedido</a>
+		                       target="_blank">🧾 PDF Pedido </a>
 
 		                    <!-- Reporte individual -->
 		                    <a th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
 		                       th:href="@{/cliente/pedido/{idPedido}/producto/{idProducto}(idPedido=${d.pedido.idPedido}, idProducto=${d.producto.idProd})}"
 		                       class="btn btn-sm btn-success"
-		                       target="_blank">📄 Ver Reporte Producto</a>
+		                       target="_blank">📄 PDF Producto </a>
+							   
+
+							   <!-- Cancelar pedido si solo tiene 1 producto -->
+							   <form th:if="${d.pedido.detalles != null and #lists.size(d.pedido.detalles) == 1}"
+							         th:action="@{/cliente/eliminarDetallePedido}" method="post"
+							         onsubmit="return confirm('¿Cancelar este pedido?');">
+							       <input type="hidden" name="seccion" value="detallePedidos"/>
+							       <input type="hidden" name="idPedido" th:value="${d.pedido.idPedido}"/>
+							       <input type="hidden" name="idProducto" th:value="${d.producto.idProd}"/>
+							       <button type="submit" class="btn btn-sm btn-outline-danger">❌ Cancelar Pedido</button>
+							   </form>
 		                </td>
 		            </tr>
 
@@ -226,14 +227,10 @@
 					    style="display: none; background-color: #dff7ff; font-weight: bold;">
 					    <td colspan="4" class="text-end">Sumatoria de Productos:</td>
 					    <td colspan="2" th:text="'S/ ' + ${#numbers.formatDecimal(totalPorPedido[d.pedido.idPedido], 1, 'POINT', 2, 'POINT')}"></td>
-					</tr>
-
-					
+					</tr>	
 		        </th:block>
 		    </tbody>
-		</table>
-
-		
+		</table>		
 	    <!-- PAGINACIÓN -->
 	    <nav th:if="${totalPaginasDetallePedido > 1}">
 	        <ul class="pagination justify-content-center">

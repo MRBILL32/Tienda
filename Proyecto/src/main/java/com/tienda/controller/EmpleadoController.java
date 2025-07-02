@@ -1,5 +1,13 @@
 package com.tienda.controller;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -15,19 +23,30 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.tienda.entity.Categoria;
 import com.tienda.entity.DetallePedido;
+import com.tienda.entity.DetallePedidoId;
+import com.tienda.entity.Pedido;
 import com.tienda.entity.Producto;
 import com.tienda.entity.Usuario;
 import com.tienda.service.CategoriaService;
 import com.tienda.service.DetallePedidoService;
+import com.tienda.service.PedidoService;
 import com.tienda.service.ProductoService;
 import com.tienda.service.UsuarioService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
 @Controller
 @RequestMapping("/empleado")
 public class EmpleadoController {
    
+	@Autowired
+	private PedidoService pedidoService;
+	
 	@Autowired
 	private UsuarioService usuarioService;
 	
@@ -54,7 +73,7 @@ public class EmpleadoController {
 	                        // detalle pedido
 	                        @RequestParam(value = "filtroDetallePedido", required = false) String filtroDetallePedido,
 	                        @RequestParam(value = "pageDetallePedido", defaultValue = "1") int paginaDetallePedido,
-	                        @RequestParam(value = "size", defaultValue = "8") int tamanio,
+	                        @RequestParam(value = "size", defaultValue = "10") int tamanio,
 	                        Model model, HttpSession session) {
 
 		Usuario logueado = (Usuario) session.getAttribute("usuarioLogueado");
@@ -102,13 +121,26 @@ public class EmpleadoController {
 	                ? detallePedidoService.buscarTodosPorFiltro("", paginaDetallePedido - 1, tamanio)
 	                : detallePedidoService.buscarTodosPorFiltro(filtroDetallePedido, paginaDetallePedido - 1, tamanio);
 
-	        model.addAttribute("detallePedidos", detallePedidosPage.getContent());
+	        List<DetallePedido> listaDetallePedidos = detallePedidosPage.getContent();
+
+	        // Calcular sumatoria por pedido
+	        Map<Integer, BigDecimal> totalPorPedido = new HashMap<>();
+	        for (DetallePedido d : listaDetallePedidos) {
+	            int idPedido = d.getPedido().getIdPedido();
+	            BigDecimal subtotal = d.getPrecioUnit().multiply(BigDecimal.valueOf(d.getCantidad()));
+	            totalPorPedido.merge(idPedido, subtotal, BigDecimal::add);
+	        }
+
+	        // Enviar a la vista
+	        model.addAttribute("detallePedidos", listaDetallePedidos);
+	        model.addAttribute("totalPorPedido", totalPorPedido);
 	        model.addAttribute("filtroDetallePedido", filtroDetallePedido);
 	        model.addAttribute("paginaActualDetallePedido", paginaDetallePedido);
 	        model.addAttribute("totalPaginasDetallePedido", detallePedidosPage.getTotalPages());
 	        model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
 	        System.out.println("Vista Pedidos...");
 	    }
+
 
 	    return "/empleado/inicio";
 		}
@@ -167,7 +199,6 @@ public class EmpleadoController {
 	        return "redirect:/empleado/inicio?seccion=productos";
 	    }
 
-		
 		//Conteo Producto Por filtro
 	    @GetMapping("/contarProductos")
 	    @ResponseBody
@@ -308,7 +339,6 @@ public class EmpleadoController {
 			return "empleado/formularioRegistrarCategoria";
 		}
 
-
 		// al guardar: vuelve a /admin/listarCategorias
 		@PostMapping("/registrarCategoria")
 		public String guardarCategoria(@ModelAttribute("categoria") Categoria categoria,
@@ -318,7 +348,107 @@ public class EmpleadoController {
 	    return "redirect:/empleado/listarCategorias";
 		}
 		
+		//=========================== PEDIDO ===================================//
+	    
+		//exportar reporte producto
+	    @GetMapping("/pedido/{idPedido}/producto/{idProducto}")
+	    public void exportarReporteProducto(
+	        @PathVariable("idPedido") int idPedido,
+	        @PathVariable("idProducto") int idProducto,
+	        HttpServletResponse response) {
+
+	        try {
+	            InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfProducto.jasper");
+	            if (jasperStream == null) {
+	                throw new FileNotFoundException("No se encontró el archivo del reporte.");
+	            }
+
+	            DetallePedidoId detalleId = new DetallePedidoId(idPedido, idProducto);
+	            DetallePedido detalle = detallePedidoService.buscarPorId(detalleId);
+	            List<DetallePedido> detalles = Collections.singletonList(detalle);
+
+	            Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
+	            Usuario usuario = null;
+	            String nombreCliente = "";
+
+	            if (pedido != null && pedido.getUsuario() != null) {
+	                usuario = pedido.getUsuario();
+	                nombreCliente = usuario.getNombres() + " " + usuario.getApellidos();
+	            }
+
+	            Map<String, Object> parametros = new HashMap<>();
+	            parametros.put("idPedido", idPedido);
+	            parametros.put("nomCli", nombreCliente);
+
+	            if (usuario != null) {
+	                parametros.put("dni", usuario.getDni());
+	                parametros.put("login", usuario.getLogin());
+	                parametros.put("correo", usuario.getCorreo());
+	            }
+
+	            System.out.println("Cargando Reporte de Producto en Formato PDF.");
+
+	            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
+	            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
+
+	            // Tipo de contenido PDF sin encabezado personalizado
+	            response.setContentType("application/pdf");
+
+	            // Exportar directamente el PDF (sin Content-Disposition)
+	            JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+	    }
+
+	    //Exportar Reporte Pedido
+	    @GetMapping("/pedido/{id}")
+	    public void exportarReportePedido(@PathVariable("id") int idPedido, HttpServletResponse response) {
+	        try {
+	            InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfPedido.jasper");
+	            if (jasperStream == null) {
+	                throw new FileNotFoundException("No se encontró el archivo del reporte.");
+	            }
+
+	            // 1. Obtén los detalles del pedido
+	            List<DetallePedido> detalles = detallePedidoService.buscarPorIdPedido(idPedido);
+
+	            // 2. Obtén el pedido y el cliente
+	            Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
+	            Usuario usuario = null;
+	            String nombreCliente = "";
+
+	            if (pedido != null && pedido.getUsuario() != null) {
+	                usuario = pedido.getUsuario();
+	                nombreCliente = usuario.getNombres() + " " + usuario.getApellidos();
+	            }
+
+	            System.out.println("Cargando Reporte de Pedido en Formato PDF.");
+
+	            // 3. Crea el DataSource
+	            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
+
+	            // 4. Parámetros
+	            Map<String, Object> parametros = new HashMap<>();
+	            parametros.put("idPedido", idPedido);
+	            parametros.put("nomCli", nombreCliente);
+	            parametros.put("dni", usuario.getDni());
+	            parametros.put("login", usuario.getLogin());
+	            parametros.put("correo", usuario.getCorreo());
+	            
+
+	            // 5. Llena el reporte
+	            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
+
+	            // 6. Exporta a PDF
+	            response.setContentType("application/pdf");
+	            JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	        }
+	    }
+	    
+		
 }
-
-	
-
