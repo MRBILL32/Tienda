@@ -355,7 +355,7 @@ public class ClienteController {
     	return detallePedidoService.contadorDetallePedido(filtro);
     }
     
-    //exportar reporte producto
+    // Exportar Reporte Producto
     @GetMapping("/pedido/{idPedido}/producto/{idProducto}")
     public void exportarReporteProducto(
         @PathVariable("idPedido") int idPedido,
@@ -364,9 +364,11 @@ public class ClienteController {
 
         try {
             InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfProducto.jasper");
+           
             if (jasperStream == null) {
                 throw new FileNotFoundException("No se encontró el archivo del reporte.");
             }
+            
 
             DetallePedidoId detalleId = new DetallePedidoId(idPedido, idProducto);
             DetallePedido detalle = detallePedidoService.buscarPorId(detalleId);
@@ -382,9 +384,10 @@ public class ClienteController {
             }
 
             Map<String, Object> parametros = new HashMap<>();
+            parametros.put("SUBREPORT_DIR", getClass().getResource("/reportes/").toString());
             parametros.put("idPedido", idPedido);
             parametros.put("nomCli", nombreCliente);
-
+            
             if (usuario != null) {
                 parametros.put("dni", usuario.getDni());
                 parametros.put("login", usuario.getLogin());
@@ -396,7 +399,6 @@ public class ClienteController {
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
 
-            // Tipo de contenido PDF sin encabezado personalizado
             response.setContentType("application/pdf");
             JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
 
@@ -405,19 +407,21 @@ public class ClienteController {
         }
     }
 
-    //Exportar Reporte Pedido
+    // Exportar Reporte Pedido
     @GetMapping("/pedido/{id}")
     public void exportarReportePedido(@PathVariable("id") int idPedido, HttpServletResponse response) {
         try {
             InputStream jasperStream = getClass().getResourceAsStream("/reportes/pdfPedido.jasper");
+
+            
             if (jasperStream == null) {
                 throw new FileNotFoundException("No se encontró el archivo del reporte.");
             }
+            
+    
 
-            // 1. Obtén los detalles del pedido
             List<DetallePedido> detalles = detallePedidoService.buscarPorIdPedido(idPedido);
 
-            // 2. Obtén el pedido y el cliente
             Pedido pedido = pedidoService.buscarPorId(idPedido).orElse(null);
             Usuario usuario = null;
             String nombreCliente = "";
@@ -429,22 +433,22 @@ public class ClienteController {
 
             System.out.println("Cargando Reporte de Pedido en Formato PDF.");
 
-            // 3. Crea el DataSource
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
 
-            // 4. Parámetros
             Map<String, Object> parametros = new HashMap<>();
+            parametros.put("SUBREPORT_DIR", getClass().getResource("/reportes/").toString());
             parametros.put("idPedido", idPedido);
             parametros.put("nomCli", nombreCliente);
-            parametros.put("dni", usuario.getDni());
-            parametros.put("login", usuario.getLogin());
-            parametros.put("correo", usuario.getCorreo());
-            
 
-            // 5. Llena el reporte
+            if (usuario != null) {
+                parametros.put("dni", usuario.getDni());
+                parametros.put("login", usuario.getLogin());
+                parametros.put("correo", usuario.getCorreo());
+
+            }
+
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperStream, parametros, dataSource);
 
-            // 6. Exporta a PDF
             response.setContentType("application/pdf");
             JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
 
@@ -452,6 +456,7 @@ public class ClienteController {
             ex.printStackTrace();
         }
     }
+
     
     //Eliminar detalle de pedido
     @PostMapping("/eliminarDetallePedido")

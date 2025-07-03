@@ -5554,3 +5554,44 @@ org.eclipse.core.runtime.CoreException: Could not resolve artifact net.sf.jasper
 2025-07-02 17:42:06,977 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
 2025-07-02 17:42:06,981 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 22 resources from src\main\resources to target\classes
 2025-07-02 17:42:06,987 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 12:52:14,564 [Worker-6: Loading available Gradle versions] INFO  o.e.b.c.i.u.g.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2025-07-03 12:52:26,722 [Worker-5: Importing Maven projects] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.tienda:Proyecto:0.0.1-SNAPSHOT @ C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\pom.xml.
+2025-07-03 12:52:29,013 [Worker-5: Importing Maven projects] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /Proyecto/src/main/java
+2025-07-03 12:52:29,020 [Worker-5: Importing Maven projects] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /Proyecto/src/main/resources
+2025-07-03 12:52:29,020 [Worker-5: Importing Maven projects] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /Proyecto/src/main/resources
+2025-07-03 12:52:29,020 [Worker-5: Importing Maven projects] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /Proyecto/src/test/java
+2025-07-03 12:52:29,023 [Worker-5: Importing Maven projects] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /Proyecto/src/test/resources
+2025-07-03 12:52:29,603 [Worker-5: Importing Maven projects] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Imported and configured 1 project(s) in 4 sec
+2025-07-03 12:52:34,096 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 12:52:34,109 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 12:52:34,135 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:04:37,761 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:04:37,765 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:04:37,767 [Worker-6: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:11:33,392 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:11:33,392 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 2 resources from src\main\resources to target\classes
+2025-07-03 13:11:33,392 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:13:54,560 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:13:54,568 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:13:54,578 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:15:13,404 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:15:13,427 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:15:13,444 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:22:38,907 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:22:38,911 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:22:38,914 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:22:41,542 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-07-03 13:22:41,546 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 2 resources from src\main\resources to target\classes
+2025-07-03 13:22:41,550 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:22:44,341 [Worker-17: Launching Proyecto - ProyectoApplication] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:22:44,347 [Worker-17: Launching Proyecto - ProyectoApplication] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:22:44,356 [Worker-17: Launching Proyecto - ProyectoApplication] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:23:52,195 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:23:52,204 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:23:52,212 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:24:32,418 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:24:32,423 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:24:32,429 [Worker-14: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources
+2025-07-03 13:27:20,213 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-07-03 13:27:20,221 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 24 resources from src\main\resources to target\classes
+2025-07-03 13:27:20,229 [Worker-15: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory C:\Users\Administrator\Downloads\ProyectoFinalAlmacen\Proyecto\src\test\resources

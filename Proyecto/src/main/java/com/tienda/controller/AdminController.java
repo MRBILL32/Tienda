@@ -453,6 +453,7 @@ model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("idPedido", idPedido);
             parametros.put("nomCli", nombreCliente);
+            parametros.put("SUBREPORT_DIR", getClass().getResource("/reportes/").toString());
 
             if (usuario != null) {
                 parametros.put("dni", usuario.getDni());
@@ -505,9 +506,13 @@ model.addAttribute("totalDetallePedido", detallePedidosPage.getTotalElements());
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("idPedido", idPedido);
             parametros.put("nomCli", nombreCliente);
-            parametros.put("dni", usuario.getDni());
-            parametros.put("login", usuario.getLogin());
-            parametros.put("correo", usuario.getCorreo());
+            parametros.put("SUBREPORT_DIR", getClass().getResource("/reportes/").toString());
+
+            if (usuario != null) {
+                parametros.put("dni", usuario.getDni());
+                parametros.put("login", usuario.getLogin());
+                parametros.put("correo", usuario.getCorreo());
+            }
             
 
             // 5. Llena el reporte
