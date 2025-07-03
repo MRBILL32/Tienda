@@ -16,7 +16,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <form th:action="@{/admin/registrarCategoria}" th:object="${categoria}" method="post" class="border p-4 rounded shadow-sm bg-light">
+    <form th:action="@{/empleado/registrarCategoria}" th:object="${categoria}" method="post" class="border p-4 rounded shadow-sm bg-light">
         <div class="mb-3">
             <label for="nomCate" class="form-label">Nombre de Categoría</label>
             <input type="text" id="nomCate" class="form-control" th:field="*{nomCate}" placeholder="Ej. Lácteos" required>
