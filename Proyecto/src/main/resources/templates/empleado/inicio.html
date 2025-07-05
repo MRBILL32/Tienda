@@ -297,6 +297,15 @@
 			                    </th:block>
 			                </td>
 			            </tr>
+						
+						<!-- Mostrar total del pedido SOLO si tiene más de un producto y es el último producto del pedido -->
+						           <th:block th:if="${iterStat.index + 1 == detallePedidos.size() or detallePedidos[iterStat.index + 1].pedido.idPedido != d.pedido.idPedido}">
+						               <tr th:if="${#lists.size(d.pedido.detalles) > 1}">
+						                   <td colspan="5" class="text-end fw-bold">Sumatoria de Productos:</td>
+						                   <td class="fw-bold" th:text="${totalPorPedido[d.pedido.idPedido]}"></td>
+						                   <td></td>
+						               </tr>
+						</th:block>
 			        </th:block>
 			    </th:block>
 			</tbody>
